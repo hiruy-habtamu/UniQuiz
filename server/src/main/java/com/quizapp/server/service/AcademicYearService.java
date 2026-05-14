@@ -1,17 +1,26 @@
+package com.quizapp.server.service;
+
 import com.quizapp.server.dao.AcademicYearDao;
 import com.quizapp.shared.model.AcademicYear;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 public class AcademicYearService {
 
     private final AcademicYearDao dao;
 
+    public AcademicYearService() {
+        this(new AcademicYearDao());
+    }
+
     public AcademicYearService(AcademicYearDao dao) {
         this.dao = dao;
     }
 
-    public void ensureCurrentYearExists() throws Exception {
+    public void ensureCurrentYearExists() throws SQLException {
         String label = deriveLabel();
         if (dao.findByLabel(label).isEmpty()) {
             AcademicYear year = new AcademicYear();
@@ -24,6 +33,27 @@ public class AcademicYearService {
         }
     }
 
+    public List<AcademicYear> getAllYears() throws SQLException {
+        return dao.findAll();
+    }
+
+    public Optional<AcademicYear> getActiveYear() throws SQLException {
+        return dao.findActive();
+    }
+
+    public int createYear(AcademicYear academicYear) throws SQLException {
+        validateYear(academicYear);
+        if (dao.findByLabel(academicYear.getLabel()).isPresent()) {
+            throw new IllegalArgumentException("Academic year label already exists.");
+        }
+
+        int id = dao.insert(academicYear);
+        if (academicYear.isActive()) {
+            dao.deactivateAllExcept(academicYear.getLabel());
+        }
+        return id;
+    }
+
     private String deriveLabel() {
         int year = currentYear();
         return year + "/" + String.valueOf(year + 1).substring(2);
@@ -34,5 +64,20 @@ public class AcademicYearService {
 
         LocalDate now = LocalDate.now();
         return now.getMonthValue() >= 9 ? now.getYear() : now.getYear() - 1;
+    }
+
+    private void validateYear(AcademicYear academicYear) {
+        if (academicYear == null) {
+            throw new IllegalArgumentException("Academic year is required.");
+        }
+        if (academicYear.getLabel() == null || academicYear.getLabel().isBlank()) {
+            throw new IllegalArgumentException("Academic year label is required.");
+        }
+        if (academicYear.getStartDate() == null || academicYear.getEndDate() == null) {
+            throw new IllegalArgumentException("Academic year dates are required.");
+        }
+        if (!academicYear.getStartDate().isBefore(academicYear.getEndDate())) {
+            throw new IllegalArgumentException("Academic year start date must be before end date.");
+        }
     }
 }

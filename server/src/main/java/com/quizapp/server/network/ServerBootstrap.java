@@ -1,4 +1,66 @@
 package com.quizapp.server.network;
 
+import com.quizapp.server.presence.OnlineRegistry;
+import com.quizapp.server.service.BatchService;
+import com.quizapp.server.service.EnrollmentService;
+import com.quizapp.server.service.AuthService;
+import com.quizapp.server.service.QuizService;
+import com.quizapp.server.service.SectionService;
+import com.quizapp.server.service.SemesterService;
+import com.quizapp.server.service.TeacherSectionService;
+import com.quizapp.server.session.SessionRegistry;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 public class ServerBootstrap {
+    private static final int DEFAULT_PORT = 5050;
+
+    private final int port;
+    private final AuthService authService;
+    private final QuizService quizService;
+    private final BatchService batchService;
+    private final SemesterService semesterService;
+    private final SectionService sectionService;
+    private final EnrollmentService enrollmentService;
+    private final TeacherSectionService teacherSectionService;
+    private final OnlineRegistry onlineRegistry;
+    private final SessionRegistry sessionRegistry;
+
+    public ServerBootstrap() {
+        this(DEFAULT_PORT, new AuthService(), new QuizService(), new BatchService(), new SemesterService(),
+                new SectionService(), new EnrollmentService(), new TeacherSectionService(),
+                new OnlineRegistry(), new SessionRegistry());
+    }
+
+    public ServerBootstrap(int port, AuthService authService, QuizService quizService,
+                           BatchService batchService, SemesterService semesterService,
+                           SectionService sectionService, EnrollmentService enrollmentService,
+                           TeacherSectionService teacherSectionService, OnlineRegistry onlineRegistry,
+                           SessionRegistry sessionRegistry) {
+        this.port = port;
+        this.authService = authService;
+        this.quizService = quizService;
+        this.batchService = batchService;
+        this.semesterService = semesterService;
+        this.sectionService = sectionService;
+        this.enrollmentService = enrollmentService;
+        this.teacherSectionService = teacherSectionService;
+        this.onlineRegistry = onlineRegistry;
+        this.sessionRegistry = sessionRegistry;
+    }
+
+    public void start() throws IOException {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            while (true) {
+                Socket socket = serverSocket.accept();
+                ClientHandler handler = new ClientHandler(socket, authService, quizService, batchService,
+                        semesterService, sectionService, enrollmentService, teacherSectionService,
+                        onlineRegistry, sessionRegistry);
+                Thread thread = new Thread(handler, "client-" + socket.getPort());
+                thread.start();
+            }
+        }
+    }
 }

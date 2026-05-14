@@ -1,22 +1,21 @@
-package com.quizapp.shared.message.auth;
+package com.quizapp.shared.message.student;
 
 import com.quizapp.shared.message.Message;
-import com.quizapp.shared.model.User;
 
-public class LoginResponseMessage extends Message {
+public class AnswerSubmissionResponseMessage extends Message {
     private static final long serialVersionUID = 1L;
 
     private final boolean success;
     private final String reason;
-    private final User user;
+    private final int answerId;
 
-    public LoginResponseMessage(boolean success, String reason, User user) {
+    public AnswerSubmissionResponseMessage(boolean success, String reason, int answerId) {
         this.success = success;
         this.reason = reason;
-        this.user = user;
+        this.answerId = answerId;
     }
 
     public boolean isSuccess() { return success; }
     public String getReason() { return reason; }
-    public User getUser() { return user; }
+    public int getAnswerId() { return answerId; }
 }
