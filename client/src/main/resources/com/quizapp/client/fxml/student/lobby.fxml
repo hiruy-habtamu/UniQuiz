@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx"
+<VBox alignment="CENTER" spacing="12" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.quizapp.client.controller.student.LobbyController">
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+    <Label text="Student Lobby" />
+    <Label fx:id="welcomeLabel" />
+    <ListView fx:id="activeQuizList" maxHeight="320" maxWidth="420" prefHeight="280" prefWidth="420" />
+    <Button fx:id="joinButton" mnemonicParsing="false" onAction="#handleJoinQuiz" text="Join selected quiz" />
+    <Button mnemonicParsing="false" onAction="#handleRefresh" text="Refresh active quizzes" />
+    <Label fx:id="statusLabel" wrapText="true" />
+    <Button mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
 </VBox>

@@ -23,16 +23,23 @@ public class CreateQuizMessage extends Message {
     public static class QuestionPayload implements Serializable {
         private static final long serialVersionUID = 1L;
 
+        private final int id;
         private final String body;
         private final int position;
         private final List<ChoicePayload> choices;
 
         public QuestionPayload(String body, int position, List<ChoicePayload> choices) {
+            this(0, body, position, choices);
+        }
+
+        public QuestionPayload(int id, String body, int position, List<ChoicePayload> choices) {
+            this.id = id;
             this.body = body;
             this.position = position;
             this.choices = choices;
         }
 
+        public int getId() { return id; }
         public String getBody() { return body; }
         public int getPosition() { return position; }
         public List<ChoicePayload> getChoices() { return choices; }
@@ -41,14 +48,21 @@ public class CreateQuizMessage extends Message {
     public static class ChoicePayload implements Serializable {
         private static final long serialVersionUID = 1L;
 
+        private final int id;
         private final String body;
         private final boolean correct;
 
         public ChoicePayload(String body, boolean correct) {
+            this(0, body, correct);
+        }
+
+        public ChoicePayload(int id, String body, boolean correct) {
+            this.id = id;
             this.body = body;
             this.correct = correct;
         }
 
+        public int getId() { return id; }
         public String getBody() { return body; }
         public boolean isCorrect() { return correct; }
     }

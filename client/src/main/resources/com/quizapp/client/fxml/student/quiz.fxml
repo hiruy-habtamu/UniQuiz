@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx"
+<VBox fx:id="quizContainer" alignment="CENTER" spacing="12" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.quizapp.client.controller.student.QuizController">
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+    <Label fx:id="quizTitleLabel" text="Quiz" />
+    <Label fx:id="questionCounterLabel" />
+    <Label fx:id="questionBodyLabel" maxWidth="520" wrapText="true" />
+    <ListView fx:id="choiceList" maxHeight="220" maxWidth="520" prefHeight="220" prefWidth="520" />
+    <Button fx:id="nextButton" mnemonicParsing="false" onAction="#handleSubmitAnswer" text="Submit & Next" />
+    <Button fx:id="previousButton" mnemonicParsing="false" onAction="#handlePreviousQuestion" text="Previous question" />
+    <Button mnemonicParsing="false" onAction="#handleBackToLobby" text="Leave quiz" />
+    <Label fx:id="statusLabel" wrapText="true" />
 </VBox>

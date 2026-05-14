@@ -1,14 +1,33 @@
 package com.quizapp.client.network;
 
 import com.quizapp.shared.message.Message;
+import com.quizapp.shared.message.academic.ActionResponseMessage;
+import com.quizapp.shared.message.academic.AssignStudentSectionMessage;
+import com.quizapp.shared.message.academic.CreateBatchMessage;
+import com.quizapp.shared.message.academic.CreateSectionMessage;
+import com.quizapp.shared.message.academic.CreateSemesterMessage;
+import com.quizapp.shared.message.academic.EntityResponseMessage;
+import com.quizapp.shared.message.academic.GetBatchesMessage;
+import com.quizapp.shared.message.academic.GetBatchesResponseMessage;
+import com.quizapp.shared.message.academic.GetSectionsMessage;
+import com.quizapp.shared.message.academic.GetSectionsResponseMessage;
 import com.quizapp.shared.message.auth.LoginMessage;
 import com.quizapp.shared.message.auth.LoginResponseMessage;
 import com.quizapp.shared.message.auth.RegisterMessage;
 import com.quizapp.shared.message.auth.RegisterResponseMessage;
+import com.quizapp.shared.message.quiz.CloseQuizMessage;
 import com.quizapp.shared.message.quiz.CreateQuizMessage;
 import com.quizapp.shared.message.quiz.CreateQuizResponseMessage;
+import com.quizapp.shared.message.quiz.GetActiveQuizzesMessage;
+import com.quizapp.shared.message.quiz.GetActiveQuizzesResponseMessage;
+import com.quizapp.shared.message.quiz.JoinQuizMessage;
+import com.quizapp.shared.message.quiz.JoinQuizResponseMessage;
+import com.quizapp.shared.message.quiz.StartQuizMessage;
 import com.quizapp.shared.message.student.AnswerSubmissionMessage;
 import com.quizapp.shared.message.student.AnswerSubmissionResponseMessage;
+import com.quizapp.shared.model.Batch;
+import com.quizapp.shared.model.Section;
+import com.quizapp.shared.model.Semester;
 
 import java.io.IOException;
 
@@ -31,6 +50,48 @@ public class MessageDispatcher {
                                             String role, Integer batchId) throws IOException, ClassNotFoundException {
         RegisterMessage request = new RegisterMessage(username, password, fullName, role, batchId);
         return expect(RegisterResponseMessage.class, connection.send(request));
+    }
+
+    public GetBatchesResponseMessage getBatches() throws IOException, ClassNotFoundException {
+        return expect(GetBatchesResponseMessage.class, connection.send(new GetBatchesMessage()));
+    }
+
+    public GetSectionsResponseMessage getSections(int batchId) throws IOException, ClassNotFoundException {
+        return expect(GetSectionsResponseMessage.class, connection.send(new GetSectionsMessage(batchId)));
+    }
+
+    public ActionResponseMessage assignStudentSection(int studentId, int sectionId)
+            throws IOException, ClassNotFoundException {
+        AssignStudentSectionMessage request = new AssignStudentSectionMessage(studentId, sectionId);
+        return expect(ActionResponseMessage.class, connection.send(request));
+    }
+
+    public EntityResponseMessage createBatch(Batch batch) throws IOException, ClassNotFoundException {
+        return expect(EntityResponseMessage.class, connection.send(new CreateBatchMessage(batch)));
+    }
+
+    public EntityResponseMessage createSemester(Semester semester) throws IOException, ClassNotFoundException {
+        return expect(EntityResponseMessage.class, connection.send(new CreateSemesterMessage(semester)));
+    }
+
+    public EntityResponseMessage createSection(Section section) throws IOException, ClassNotFoundException {
+        return expect(EntityResponseMessage.class, connection.send(new CreateSectionMessage(section)));
+    }
+
+    public ActionResponseMessage startQuiz(int quizId) throws IOException, ClassNotFoundException {
+        return expect(ActionResponseMessage.class, connection.send(new StartQuizMessage(quizId)));
+    }
+
+    public ActionResponseMessage closeQuiz(int quizId) throws IOException, ClassNotFoundException {
+        return expect(ActionResponseMessage.class, connection.send(new CloseQuizMessage(quizId)));
+    }
+
+    public GetActiveQuizzesResponseMessage getActiveQuizzes() throws IOException, ClassNotFoundException {
+        return expect(GetActiveQuizzesResponseMessage.class, connection.send(new GetActiveQuizzesMessage()));
+    }
+
+    public JoinQuizResponseMessage joinQuiz(int quizId, int studentId) throws IOException, ClassNotFoundException {
+        return expect(JoinQuizResponseMessage.class, connection.send(new JoinQuizMessage(quizId, studentId)));
     }
 
     public CreateQuizResponseMessage createQuiz(CreateQuizMessage message) throws IOException, ClassNotFoundException {

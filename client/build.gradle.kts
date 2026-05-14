@@ -13,4 +13,6 @@ application {
 
 dependencies {
     implementation(project(":shared"))
+    implementation("org.openjfx:javafx-controls:21.0.5:linux")
+    implementation("org.openjfx:javafx-fxml:21.0.5:linux")
 }

@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx"
+<VBox alignment="CENTER" spacing="12" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.quizapp.client.controller.teacher.SectionController">
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+    <Label text="Create Section" />
+    <ComboBox fx:id="batchComboBox" maxWidth="320" promptText="Select batch" />
+    <TextField fx:id="semesterIdField" maxWidth="320" promptText="Semester id" />
+    <TextField fx:id="sectionNameField" maxWidth="320" promptText="Section name, e.g. A" />
+    <Button mnemonicParsing="false" onAction="#handleCreateSection" text="Create section" />
+    <Button mnemonicParsing="false" onAction="#handleBack" text="Back" />
+    <Label fx:id="statusLabel" wrapText="true" />
 </VBox>

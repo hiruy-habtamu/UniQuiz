@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx"
+<VBox alignment="CENTER" spacing="12" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.quizapp.client.controller.teacher.DashboardController">
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+    <Label text="Teacher Dashboard" />
+    <Label fx:id="welcomeLabel" />
+    <Button mnemonicParsing="false" onAction="#handleOpenBatch" text="Manage batches" />
+    <Button mnemonicParsing="false" onAction="#handleOpenSemester" text="Manage semesters" />
+    <Button mnemonicParsing="false" onAction="#handleOpenSection" text="Manage sections" />
+    <Button mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
 </VBox>

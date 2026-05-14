@@ -158,9 +158,9 @@ public class QuizService {
         for (Question question : questionDao.findByQuizId(quizId)) {
             List<CreateQuizMessage.ChoicePayload> choices = new ArrayList<>();
             for (Choice choice : choiceDao.findByQuestionId(question.getId())) {
-                choices.add(new CreateQuizMessage.ChoicePayload(choice.getBody(), choice.isCorrect()));
+                choices.add(new CreateQuizMessage.ChoicePayload(choice.getId(), choice.getBody(), choice.isCorrect()));
             }
-            payload.add(new CreateQuizMessage.QuestionPayload(question.getBody(), question.getPosition(), choices));
+            payload.add(new CreateQuizMessage.QuestionPayload(question.getId(), question.getBody(), question.getPosition(), choices));
         }
         return payload;
     }
