@@ -14,6 +14,7 @@ import com.quizapp.shared.model.Quiz;
 import com.quizapp.shared.model.User;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -134,6 +135,34 @@ public class QuizService {
             throw new IllegalArgumentException("Quiz not found.");
         }
         quizDao.updateStatus(quizId, status);
+    }
+
+    public void startQuiz(int quizId) throws SQLException {
+        updateQuizStatus(quizId, "ACTIVE");
+    }
+
+    public void closeQuiz(int quizId) throws SQLException {
+        updateQuizStatus(quizId, "CLOSED");
+    }
+
+    public List<Quiz> getActiveQuizzes() throws SQLException {
+        return quizDao.findByStatus("ACTIVE");
+    }
+
+    public List<CreateQuizMessage.QuestionPayload> buildQuizPayload(int quizId) throws SQLException {
+        if (quizDao.findById(quizId).isEmpty()) {
+            throw new IllegalArgumentException("Quiz not found.");
+        }
+
+        List<CreateQuizMessage.QuestionPayload> payload = new ArrayList<>();
+        for (Question question : questionDao.findByQuizId(quizId)) {
+            List<CreateQuizMessage.ChoicePayload> choices = new ArrayList<>();
+            for (Choice choice : choiceDao.findByQuestionId(question.getId())) {
+                choices.add(new CreateQuizMessage.ChoicePayload(choice.getBody(), choice.isCorrect()));
+            }
+            payload.add(new CreateQuizMessage.QuestionPayload(question.getBody(), question.getPosition(), choices));
+        }
+        return payload;
     }
 
     private void validateQuiz(Quiz quiz) throws SQLException {

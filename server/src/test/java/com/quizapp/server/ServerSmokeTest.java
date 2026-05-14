@@ -182,6 +182,11 @@ public class ServerSmokeTest {
         int quizId = quizService.createQuizWithQuestions(quiz, questions);
         assertTrue(quizId > 0, "Quiz should be created");
         assertEquals(1, questionDao.findByQuizId(quizId).size(), "Question should be stored");
+        assertEquals(0, quizService.getActiveQuizzes().size(), "New quizzes should not be active by default");
+
+        quizService.startQuiz(quizId);
+        assertEquals(1, quizService.getActiveQuizzes().size(), "Started quiz should be active");
+        assertEquals(1, quizService.buildQuizPayload(quizId).size(), "Join payload should include quiz questions");
 
         Answer answer = new Answer();
         answer.setStudentId(student.getId());
@@ -493,9 +498,19 @@ public class ServerSmokeTest {
 
         @Override
         public int insert(Quiz quiz) {
+            if (quiz.getStatus() == null) {
+                quiz.setStatus("DRAFT");
+            }
             quiz.setId(nextId++);
             quizzes.put(quiz.getId(), quiz);
             return quiz.getId();
+        }
+
+        @Override
+        public List<Quiz> findByStatus(String status) {
+            return quizzes.values().stream()
+                    .filter(quiz -> status.equalsIgnoreCase(quiz.getStatus()))
+                    .toList();
         }
 
         @Override

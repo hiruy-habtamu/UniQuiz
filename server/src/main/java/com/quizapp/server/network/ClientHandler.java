@@ -14,17 +14,28 @@ import com.quizapp.shared.message.CommonResponseMessage;
 import com.quizapp.shared.message.Message;
 import com.quizapp.shared.message.academic.ActionResponseMessage;
 import com.quizapp.shared.message.academic.AssignTeacherSectionMessage;
+import com.quizapp.shared.message.academic.AssignStudentSectionMessage;
 import com.quizapp.shared.message.academic.CreateBatchMessage;
 import com.quizapp.shared.message.academic.CreateSectionMessage;
 import com.quizapp.shared.message.academic.CreateSemesterMessage;
 import com.quizapp.shared.message.academic.EnrollStudentMessage;
 import com.quizapp.shared.message.academic.EntityResponseMessage;
+import com.quizapp.shared.message.academic.GetBatchesMessage;
+import com.quizapp.shared.message.academic.GetBatchesResponseMessage;
+import com.quizapp.shared.message.academic.GetSectionsMessage;
+import com.quizapp.shared.message.academic.GetSectionsResponseMessage;
 import com.quizapp.shared.message.auth.LoginMessage;
 import com.quizapp.shared.message.auth.LoginResponseMessage;
 import com.quizapp.shared.message.auth.RegisterMessage;
 import com.quizapp.shared.message.auth.RegisterResponseMessage;
+import com.quizapp.shared.message.quiz.CloseQuizMessage;
 import com.quizapp.shared.message.quiz.CreateQuizMessage;
 import com.quizapp.shared.message.quiz.CreateQuizResponseMessage;
+import com.quizapp.shared.message.quiz.GetActiveQuizzesMessage;
+import com.quizapp.shared.message.quiz.GetActiveQuizzesResponseMessage;
+import com.quizapp.shared.message.quiz.JoinQuizMessage;
+import com.quizapp.shared.message.quiz.JoinQuizResponseMessage;
+import com.quizapp.shared.message.quiz.StartQuizMessage;
 import com.quizapp.shared.message.student.AnswerSubmissionMessage;
 import com.quizapp.shared.message.student.AnswerSubmissionResponseMessage;
 import com.quizapp.shared.model.Answer;
@@ -100,6 +111,12 @@ public class ClientHandler implements Runnable {
             if (payload instanceof RegisterMessage message) {
                 return handleRegister(message);
             }
+            if (payload instanceof GetBatchesMessage) {
+                return handleGetBatches();
+            }
+            if (payload instanceof GetSectionsMessage message) {
+                return handleGetSections(message);
+            }
             if (payload instanceof CreateQuizMessage message) {
                 return handleCreateQuiz(message);
             }
@@ -115,8 +132,23 @@ public class ClientHandler implements Runnable {
             if (payload instanceof EnrollStudentMessage message) {
                 return handleEnrollStudent(message);
             }
+            if (payload instanceof AssignStudentSectionMessage message) {
+                return handleAssignStudentSection(message);
+            }
             if (payload instanceof AssignTeacherSectionMessage message) {
                 return handleAssignTeacher(message);
+            }
+            if (payload instanceof StartQuizMessage message) {
+                return handleStartQuiz(message);
+            }
+            if (payload instanceof CloseQuizMessage message) {
+                return handleCloseQuiz(message);
+            }
+            if (payload instanceof GetActiveQuizzesMessage) {
+                return handleGetActiveQuizzes();
+            }
+            if (payload instanceof JoinQuizMessage message) {
+                return handleJoinQuiz(message);
             }
             if (payload instanceof AnswerSubmissionMessage message) {
                 return handleAnswerSubmission(message);
@@ -137,6 +169,14 @@ public class ClientHandler implements Runnable {
         authService.register(message.getUsername(), message.getPassword(), message.getFullName(),
                 message.getRole(), message.getBatchId());
         return new RegisterResponseMessage(true, null);
+    }
+
+    private GetBatchesResponseMessage handleGetBatches() throws SQLException {
+        return new GetBatchesResponseMessage(batchService.getAllBatches());
+    }
+
+    private GetSectionsResponseMessage handleGetSections(GetSectionsMessage message) throws SQLException {
+        return new GetSectionsResponseMessage(sectionService.getSectionsForBatchInActiveSemester(message.getBatchId()));
     }
 
     private CreateQuizResponseMessage handleCreateQuiz(CreateQuizMessage message) throws SQLException {
@@ -164,13 +204,47 @@ public class ClientHandler implements Runnable {
         return new ActionResponseMessage(true, null);
     }
 
+    private ActionResponseMessage handleAssignStudentSection(AssignStudentSectionMessage message) throws SQLException {
+        enrollmentService.enrollStudent(message.getStudentId(), message.getSectionId());
+        return new ActionResponseMessage(true, null);
+    }
+
     private ActionResponseMessage handleAssignTeacher(AssignTeacherSectionMessage message) throws SQLException {
         teacherSectionService.assignTeacher(message.getTeacherId(), message.getSectionId());
         return new ActionResponseMessage(true, null);
     }
 
+    private ActionResponseMessage handleStartQuiz(StartQuizMessage message) throws SQLException {
+        quizService.startQuiz(message.getQuizId());
+        return new ActionResponseMessage(true, null);
+    }
+
+    private ActionResponseMessage handleCloseQuiz(CloseQuizMessage message) throws SQLException {
+        quizService.closeQuiz(message.getQuizId());
+        return new ActionResponseMessage(true, null);
+    }
+
+    private GetActiveQuizzesResponseMessage handleGetActiveQuizzes() throws SQLException {
+        return new GetActiveQuizzesResponseMessage(quizService.getActiveQuizzes());
+    }
+
+    private JoinQuizResponseMessage handleJoinQuiz(JoinQuizMessage message) throws SQLException {
+        var quiz = quizService.getQuiz(message.getQuizId())
+                .orElse(null);
+        if (quiz == null) {
+            return new JoinQuizResponseMessage(false, "Quiz not found.", null, null);
+        }
+        if (!"ACTIVE".equalsIgnoreCase(quiz.getStatus())) {
+            return new JoinQuizResponseMessage(false, "Quiz is not active.", null, null);
+        }
+
+        sessionRegistry.getOrCreate(message.getQuizId(), message.getStudentId());
+        return new JoinQuizResponseMessage(true, null, quiz, quizService.buildQuizPayload(quiz.getId()));
+    }
+
     private AnswerSubmissionResponseMessage handleAnswerSubmission(AnswerSubmissionMessage message) throws SQLException {
-        QuizSession session = sessionRegistry.getOrCreate(message.getQuizId(), message.getStudentId());
+        QuizSession session = sessionRegistry.find(message.getQuizId(), message.getStudentId())
+                .orElseThrow(() -> new IllegalArgumentException("Student must join the quiz before submitting answers."));
         if (session.isSubmitted() || session.hasAnswered(message.getQuestionId())) {
             throw new IllegalArgumentException("Question has already been submitted in this session.");
         }

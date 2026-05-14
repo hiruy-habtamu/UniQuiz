@@ -32,6 +32,14 @@ public class SectionService {
         return sectionDao.findBySemesterId(semesterId);
     }
 
+    public List<Section> getSectionsForBatchInActiveSemester(int batchId) throws SQLException {
+        Optional<com.quizapp.shared.model.Semester> activeSemester = semesterDao.findActive();
+        if (activeSemester.isEmpty()) {
+            return List.of();
+        }
+        return sectionDao.findByBatchAndSemester(batchId, activeSemester.get().getId());
+    }
+
     public Optional<Section> getSection(int id) throws SQLException {
         return sectionDao.findById(id);
     }

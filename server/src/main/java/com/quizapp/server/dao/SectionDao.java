@@ -75,6 +75,24 @@ public class SectionDao {
         return sections;
     }
 
+    public List<Section> findByBatchAndSemester(int batchId, int semesterId) throws SQLException {
+        String sql = BASE_SELECT + "WHERE batch_id = ? AND semester_id = ? ORDER BY name ASC, id ASC";
+        List<Section> sections = new ArrayList<>();
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, batchId);
+            statement.setInt(2, semesterId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    sections.add(mapRow(resultSet));
+                }
+            }
+        }
+
+        return sections;
+    }
+
     public Optional<Section> findByNameBatchAndSemester(String name, int batchId, int semesterId) throws SQLException {
         String sql = BASE_SELECT + "WHERE name = ? AND batch_id = ? AND semester_id = ?";
 
