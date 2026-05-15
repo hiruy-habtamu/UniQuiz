@@ -8,10 +8,14 @@ import com.quizapp.shared.message.academic.CreateBatchMessage;
 import com.quizapp.shared.message.academic.CreateSectionMessage;
 import com.quizapp.shared.message.academic.CreateSemesterMessage;
 import com.quizapp.shared.message.academic.EntityResponseMessage;
+import com.quizapp.shared.message.academic.GetAllSectionsMessage;
+import com.quizapp.shared.message.academic.GetAllSectionsResponseMessage;
 import com.quizapp.shared.message.academic.GetAcademicYearsMessage;
 import com.quizapp.shared.message.academic.GetAcademicYearsResponseMessage;
 import com.quizapp.shared.message.academic.GetBatchesMessage;
 import com.quizapp.shared.message.academic.GetBatchesResponseMessage;
+import com.quizapp.shared.message.academic.GetSemestersMessage;
+import com.quizapp.shared.message.academic.GetSemestersResponseMessage;
 import com.quizapp.shared.message.academic.GetSectionsMessage;
 import com.quizapp.shared.message.academic.GetSectionsResponseMessage;
 import com.quizapp.shared.message.auth.LoginMessage;
@@ -58,6 +62,14 @@ public class MessageDispatcher {
 
     public GetBatchesResponseMessage getBatches() throws IOException, ClassNotFoundException {
         return expect(GetBatchesResponseMessage.class, connection.send(new GetBatchesMessage()));
+    }
+
+    public GetSemestersResponseMessage getSemesters() throws IOException, ClassNotFoundException {
+        return expect(GetSemestersResponseMessage.class, connection.send(new GetSemestersMessage()));
+    }
+
+    public GetAllSectionsResponseMessage getAllSections() throws IOException, ClassNotFoundException {
+        return expect(GetAllSectionsResponseMessage.class, connection.send(new GetAllSectionsMessage()));
     }
 
     public GetSectionsResponseMessage getSections(int batchId) throws IOException, ClassNotFoundException {

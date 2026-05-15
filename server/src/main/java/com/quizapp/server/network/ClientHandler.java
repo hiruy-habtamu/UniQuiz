@@ -22,10 +22,14 @@ import com.quizapp.shared.message.academic.CreateSectionMessage;
 import com.quizapp.shared.message.academic.CreateSemesterMessage;
 import com.quizapp.shared.message.academic.EnrollStudentMessage;
 import com.quizapp.shared.message.academic.EntityResponseMessage;
+import com.quizapp.shared.message.academic.GetAllSectionsMessage;
+import com.quizapp.shared.message.academic.GetAllSectionsResponseMessage;
 import com.quizapp.shared.message.academic.GetAcademicYearsMessage;
 import com.quizapp.shared.message.academic.GetAcademicYearsResponseMessage;
 import com.quizapp.shared.message.academic.GetBatchesMessage;
 import com.quizapp.shared.message.academic.GetBatchesResponseMessage;
+import com.quizapp.shared.message.academic.GetSemestersMessage;
+import com.quizapp.shared.message.academic.GetSemestersResponseMessage;
 import com.quizapp.shared.message.academic.GetSectionsMessage;
 import com.quizapp.shared.message.academic.GetSectionsResponseMessage;
 import com.quizapp.shared.message.auth.LoginMessage;
@@ -121,6 +125,12 @@ public class ClientHandler implements Runnable {
             if (payload instanceof GetBatchesMessage) {
                 return handleGetBatches();
             }
+            if (payload instanceof GetSemestersMessage) {
+                return handleGetSemesters();
+            }
+            if (payload instanceof GetAllSectionsMessage) {
+                return handleGetAllSections();
+            }
             if (payload instanceof GetAcademicYearsMessage) {
                 return handleGetAcademicYears();
             }
@@ -186,6 +196,14 @@ public class ClientHandler implements Runnable {
 
     private GetBatchesResponseMessage handleGetBatches() throws SQLException {
         return new GetBatchesResponseMessage(batchService.getAllBatches());
+    }
+
+    private GetSemestersResponseMessage handleGetSemesters() throws SQLException {
+        return new GetSemestersResponseMessage(semesterService.getAllSemesters());
+    }
+
+    private GetAllSectionsResponseMessage handleGetAllSections() throws SQLException {
+        return new GetAllSectionsResponseMessage(sectionService.getAllSections());
     }
 
     private GetAcademicYearsResponseMessage handleGetAcademicYears() throws SQLException {

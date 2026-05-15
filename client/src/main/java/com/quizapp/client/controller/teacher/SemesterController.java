@@ -11,14 +11,15 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 
 public class SemesterController {
     @FXML
     private ComboBox<AcademicYear> academicYearComboBox;
 
     @FXML
-    private TextField nameField;
+    private ComboBox<String> semesterNameComboBox;
 
     @FXML
     private DatePicker startDatePicker;
@@ -33,8 +34,14 @@ public class SemesterController {
     private Label statusLabel;
 
     @FXML
+    private ListView<Semester> semesterListView;
+
+    @FXML
     private void initialize() {
+        semesterNameComboBox.setItems(FXCollections.observableArrayList("FIRST", "SECOND", "SUMMER"));
         loadAcademicYears();
+        configureSemesterList();
+        loadSemesters();
     }
 
     @FXML
@@ -53,7 +60,7 @@ public class SemesterController {
         try {
             Semester semester = new Semester();
             semester.setAcademicYearId(selectedYear.getId());
-            semester.setName(nameField.getText());
+            semester.setName(semesterNameComboBox.getValue());
             semester.setStartDate(startDatePicker.getValue());
             semester.setEndDate(endDatePicker.getValue());
             semester.setActive(activeCheckBox.isSelected());
@@ -62,6 +69,13 @@ public class SemesterController {
             statusLabel.setText(response.isSuccess()
                     ? "Semester created with id " + response.getEntityId()
                     : response.getReason());
+            if (response.isSuccess()) {
+                semesterNameComboBox.getSelectionModel().clearSelection();
+                startDatePicker.setValue(null);
+                endDatePicker.setValue(null);
+                activeCheckBox.setSelected(false);
+                loadSemesters();
+            }
         } catch (Exception e) {
             statusLabel.setText("Unable to create semester: " + e.getMessage());
         }
@@ -79,5 +93,24 @@ public class SemesterController {
         } catch (Exception e) {
             statusLabel.setText("Unable to load academic years: " + e.getMessage());
         }
+    }
+
+    private void loadSemesters() {
+        try {
+            semesterListView.setItems(FXCollections.observableArrayList(
+                    Main.getAppState().getMessageDispatcher().getSemesters().getSemesters()));
+        } catch (Exception e) {
+            statusLabel.setText("Unable to load semesters: " + e.getMessage());
+        }
+    }
+
+    private void configureSemesterList() {
+        semesterListView.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Semester item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getName() + " (Academic Year ID " + item.getAcademicYearId() + ")");
+            }
+        });
     }
 }

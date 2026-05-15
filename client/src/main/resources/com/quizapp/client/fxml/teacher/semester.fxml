@@ -5,7 +5,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.VBox?>
 <VBox alignment="CENTER" spacing="12" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -15,11 +15,12 @@
     </padding>
     <Label text="Create Semester" />
     <ComboBox fx:id="academicYearComboBox" maxWidth="320" promptText="Select academic year" />
-    <TextField fx:id="nameField" maxWidth="320" promptText="Name: FIRST, SECOND, or SUMMER" />
+    <ComboBox fx:id="semesterNameComboBox" maxWidth="320" promptText="Select semester name" />
     <DatePicker fx:id="startDatePicker" maxWidth="320" promptText="Start date" />
     <DatePicker fx:id="endDatePicker" maxWidth="320" promptText="End date" />
     <CheckBox fx:id="activeCheckBox" mnemonicParsing="false" text="Set as active" />
     <Button mnemonicParsing="false" onAction="#handleCreateSemester" text="Create semester" />
+    <ListView fx:id="semesterListView" maxHeight="220" maxWidth="420" prefHeight="200" prefWidth="420" />
     <Button mnemonicParsing="false" onAction="#handleBack" text="Back" />
     <Label fx:id="statusLabel" wrapText="true" />
 </VBox>
