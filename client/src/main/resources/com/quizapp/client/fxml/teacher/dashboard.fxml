@@ -11,6 +11,7 @@
     </padding>
     <Label text="Teacher Dashboard" />
     <Label fx:id="welcomeLabel" />
+    <Button mnemonicParsing="false" onAction="#handleOpenAcademicYear" text="Manage academic years" />
     <Button mnemonicParsing="false" onAction="#handleOpenBatch" text="Manage batches" />
     <Button mnemonicParsing="false" onAction="#handleOpenSemester" text="Manage semesters" />
     <Button mnemonicParsing="false" onAction="#handleOpenSection" text="Manage sections" />

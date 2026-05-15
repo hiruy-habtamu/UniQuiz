@@ -3,10 +3,13 @@ package com.quizapp.client.network;
 import com.quizapp.shared.message.Message;
 import com.quizapp.shared.message.academic.ActionResponseMessage;
 import com.quizapp.shared.message.academic.AssignStudentSectionMessage;
+import com.quizapp.shared.message.academic.CreateAcademicYearMessage;
 import com.quizapp.shared.message.academic.CreateBatchMessage;
 import com.quizapp.shared.message.academic.CreateSectionMessage;
 import com.quizapp.shared.message.academic.CreateSemesterMessage;
 import com.quizapp.shared.message.academic.EntityResponseMessage;
+import com.quizapp.shared.message.academic.GetAcademicYearsMessage;
+import com.quizapp.shared.message.academic.GetAcademicYearsResponseMessage;
 import com.quizapp.shared.message.academic.GetBatchesMessage;
 import com.quizapp.shared.message.academic.GetBatchesResponseMessage;
 import com.quizapp.shared.message.academic.GetSectionsMessage;
@@ -25,6 +28,7 @@ import com.quizapp.shared.message.quiz.JoinQuizResponseMessage;
 import com.quizapp.shared.message.quiz.StartQuizMessage;
 import com.quizapp.shared.message.student.AnswerSubmissionMessage;
 import com.quizapp.shared.message.student.AnswerSubmissionResponseMessage;
+import com.quizapp.shared.model.AcademicYear;
 import com.quizapp.shared.model.Batch;
 import com.quizapp.shared.model.Section;
 import com.quizapp.shared.model.Semester;
@@ -64,6 +68,15 @@ public class MessageDispatcher {
             throws IOException, ClassNotFoundException {
         AssignStudentSectionMessage request = new AssignStudentSectionMessage(studentId, sectionId);
         return expect(ActionResponseMessage.class, connection.send(request));
+    }
+
+    public GetAcademicYearsResponseMessage getAcademicYears() throws IOException, ClassNotFoundException {
+        return expect(GetAcademicYearsResponseMessage.class, connection.send(new GetAcademicYearsMessage()));
+    }
+
+    public EntityResponseMessage createAcademicYear(int startYear, boolean active)
+            throws IOException, ClassNotFoundException {
+        return expect(EntityResponseMessage.class, connection.send(new CreateAcademicYearMessage(startYear, active)));
     }
 
     public EntityResponseMessage createBatch(Batch batch) throws IOException, ClassNotFoundException {

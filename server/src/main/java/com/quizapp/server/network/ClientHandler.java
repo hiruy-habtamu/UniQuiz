@@ -1,6 +1,7 @@
 package com.quizapp.server.network;
 
 import com.quizapp.server.presence.OnlineRegistry;
+import com.quizapp.server.service.AcademicYearService;
 import com.quizapp.server.service.BatchService;
 import com.quizapp.server.service.EnrollmentService;
 import com.quizapp.server.service.AuthService;
@@ -15,11 +16,14 @@ import com.quizapp.shared.message.Message;
 import com.quizapp.shared.message.academic.ActionResponseMessage;
 import com.quizapp.shared.message.academic.AssignTeacherSectionMessage;
 import com.quizapp.shared.message.academic.AssignStudentSectionMessage;
+import com.quizapp.shared.message.academic.CreateAcademicYearMessage;
 import com.quizapp.shared.message.academic.CreateBatchMessage;
 import com.quizapp.shared.message.academic.CreateSectionMessage;
 import com.quizapp.shared.message.academic.CreateSemesterMessage;
 import com.quizapp.shared.message.academic.EnrollStudentMessage;
 import com.quizapp.shared.message.academic.EntityResponseMessage;
+import com.quizapp.shared.message.academic.GetAcademicYearsMessage;
+import com.quizapp.shared.message.academic.GetAcademicYearsResponseMessage;
 import com.quizapp.shared.message.academic.GetBatchesMessage;
 import com.quizapp.shared.message.academic.GetBatchesResponseMessage;
 import com.quizapp.shared.message.academic.GetSectionsMessage;
@@ -52,6 +56,7 @@ public class ClientHandler implements Runnable {
     private final Socket socket;
     private final AuthService authService;
     private final QuizService quizService;
+    private final AcademicYearService academicYearService;
     private final BatchService batchService;
     private final SemesterService semesterService;
     private final SectionService sectionService;
@@ -63,6 +68,7 @@ public class ClientHandler implements Runnable {
     private Integer authenticatedUserId;
 
     public ClientHandler(Socket socket, AuthService authService, QuizService quizService,
+                         AcademicYearService academicYearService,
                          BatchService batchService, SemesterService semesterService,
                          SectionService sectionService, EnrollmentService enrollmentService,
                          TeacherSectionService teacherSectionService, OnlineRegistry onlineRegistry,
@@ -70,6 +76,7 @@ public class ClientHandler implements Runnable {
         this.socket = socket;
         this.authService = authService;
         this.quizService = quizService;
+        this.academicYearService = academicYearService;
         this.batchService = batchService;
         this.semesterService = semesterService;
         this.sectionService = sectionService;
@@ -114,6 +121,9 @@ public class ClientHandler implements Runnable {
             if (payload instanceof GetBatchesMessage) {
                 return handleGetBatches();
             }
+            if (payload instanceof GetAcademicYearsMessage) {
+                return handleGetAcademicYears();
+            }
             if (payload instanceof GetSectionsMessage message) {
                 return handleGetSections(message);
             }
@@ -122,6 +132,9 @@ public class ClientHandler implements Runnable {
             }
             if (payload instanceof CreateBatchMessage message) {
                 return handleCreateBatch(message);
+            }
+            if (payload instanceof CreateAcademicYearMessage message) {
+                return handleCreateAcademicYear(message);
             }
             if (payload instanceof CreateSemesterMessage message) {
                 return handleCreateSemester(message);
@@ -175,6 +188,10 @@ public class ClientHandler implements Runnable {
         return new GetBatchesResponseMessage(batchService.getAllBatches());
     }
 
+    private GetAcademicYearsResponseMessage handleGetAcademicYears() throws SQLException {
+        return new GetAcademicYearsResponseMessage(academicYearService.getAllYears());
+    }
+
     private GetSectionsResponseMessage handleGetSections(GetSectionsMessage message) throws SQLException {
         return new GetSectionsResponseMessage(sectionService.getSectionsForBatchInActiveSemester(message.getBatchId()));
     }
@@ -187,6 +204,11 @@ public class ClientHandler implements Runnable {
     private EntityResponseMessage handleCreateBatch(CreateBatchMessage message) throws SQLException {
         int batchId = batchService.createBatch(message.getBatch());
         return new EntityResponseMessage(true, null, batchId);
+    }
+
+    private EntityResponseMessage handleCreateAcademicYear(CreateAcademicYearMessage message) throws SQLException {
+        int academicYearId = academicYearService.createYearFromStart(message.getStartYear(), message.isActive());
+        return new EntityResponseMessage(true, null, academicYearId);
     }
 
     private EntityResponseMessage handleCreateSemester(CreateSemesterMessage message) throws SQLException {

@@ -21,12 +21,9 @@ public class AcademicYearService {
     }
 
     public void ensureCurrentYearExists() throws SQLException {
-        String label = deriveLabel();
+        String label = deriveLabel(currentYear());
         if (dao.findByLabel(label).isEmpty()) {
-            AcademicYear year = new AcademicYear();
-            year.setLabel(label);
-            year.setStartDate(LocalDate.of(currentYear(), 9, 1));
-            year.setEndDate(LocalDate.of(currentYear() + 1, 8, 31));
+            AcademicYear year = buildAcademicYear(currentYear(), true);
             year.setActive(true);
             dao.insert(year);
             dao.deactivateAllExcept(label);
@@ -54,10 +51,13 @@ public class AcademicYearService {
         return id;
     }
 
-    private String deriveLabel() {
-        int year = currentYear();
-        return year + "/" + String.valueOf(year + 1).substring(2);
-        // return e.g. 2025/26
+    public int createYearFromStart(int startYear, boolean active) throws SQLException {
+        AcademicYear academicYear = buildAcademicYear(startYear, active);
+        return createYear(academicYear);
+    }
+
+    private String deriveLabel(int year) {
+        return year + "-" + (year + 1);
     }
 
     private int currentYear() {
@@ -79,5 +79,18 @@ public class AcademicYearService {
         if (!academicYear.getStartDate().isBefore(academicYear.getEndDate())) {
             throw new IllegalArgumentException("Academic year start date must be before end date.");
         }
+    }
+
+    private AcademicYear buildAcademicYear(int startYear, boolean active) {
+        if (startYear < 1900) {
+            throw new IllegalArgumentException("Academic year start year is invalid.");
+        }
+
+        AcademicYear year = new AcademicYear();
+        year.setLabel(deriveLabel(startYear));
+        year.setStartDate(LocalDate.of(startYear, 9, 1));
+        year.setEndDate(LocalDate.of(startYear + 1, 8, 31));
+        year.setActive(active);
+        return year;
     }
 }

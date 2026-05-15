@@ -25,4 +25,9 @@ public class AcademicYear implements Serializable {
     public void setStartDate(LocalDate d)      { this.startDate = d;         }
     public void setEndDate(LocalDate d)        { this.endDate = d;           }
     public void setActive(boolean isActive)    { this.isActive = isActive;   }
+
+    @Override
+    public String toString() {
+        return label;
+    }
 }

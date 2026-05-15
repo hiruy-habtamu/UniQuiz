@@ -1,6 +1,7 @@
 package com.quizapp.server.network;
 
 import com.quizapp.server.presence.OnlineRegistry;
+import com.quizapp.server.service.AcademicYearService;
 import com.quizapp.server.service.BatchService;
 import com.quizapp.server.service.EnrollmentService;
 import com.quizapp.server.service.AuthService;
@@ -20,6 +21,7 @@ public class ServerBootstrap {
     private final int port;
     private final AuthService authService;
     private final QuizService quizService;
+    private final AcademicYearService academicYearService;
     private final BatchService batchService;
     private final SemesterService semesterService;
     private final SectionService sectionService;
@@ -29,12 +31,13 @@ public class ServerBootstrap {
     private final SessionRegistry sessionRegistry;
 
     public ServerBootstrap() {
-        this(DEFAULT_PORT, new AuthService(), new QuizService(), new BatchService(), new SemesterService(),
+        this(DEFAULT_PORT, new AuthService(), new QuizService(), new AcademicYearService(), new BatchService(), new SemesterService(),
                 new SectionService(), new EnrollmentService(), new TeacherSectionService(),
                 new OnlineRegistry(), new SessionRegistry());
     }
 
     public ServerBootstrap(int port, AuthService authService, QuizService quizService,
+                           AcademicYearService academicYearService,
                            BatchService batchService, SemesterService semesterService,
                            SectionService sectionService, EnrollmentService enrollmentService,
                            TeacherSectionService teacherSectionService, OnlineRegistry onlineRegistry,
@@ -42,6 +45,7 @@ public class ServerBootstrap {
         this.port = port;
         this.authService = authService;
         this.quizService = quizService;
+        this.academicYearService = academicYearService;
         this.batchService = batchService;
         this.semesterService = semesterService;
         this.sectionService = sectionService;
@@ -55,7 +59,7 @@ public class ServerBootstrap {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (true) {
                 Socket socket = serverSocket.accept();
-                ClientHandler handler = new ClientHandler(socket, authService, quizService, batchService,
+                ClientHandler handler = new ClientHandler(socket, authService, quizService, academicYearService, batchService,
                         semesterService, sectionService, enrollmentService, teacherSectionService,
                         onlineRegistry, sessionRegistry);
                 Thread thread = new Thread(handler, "client-" + socket.getPort());

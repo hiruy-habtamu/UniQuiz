@@ -28,6 +28,11 @@ public class DashboardController {
     }
 
     @FXML
+    private void handleOpenAcademicYear() {
+        Main.getAppNavigator().navigateTo(AppRoute.TEACHER_ACADEMIC_YEAR);
+    }
+
+    @FXML
     private void handleOpenSemester() {
         Main.getAppNavigator().navigateTo(AppRoute.TEACHER_SEMESTER);
     }
