@@ -14,6 +14,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SemesterController {
     @FXML
     private ComboBox<AcademicYear> academicYearComboBox;
@@ -35,6 +38,8 @@ public class SemesterController {
 
     @FXML
     private ListView<Semester> semesterListView;
+
+    private final Map<Integer, AcademicYear> academicYearsById = new HashMap<>();
 
     @FXML
     private void initialize() {
@@ -88,8 +93,11 @@ public class SemesterController {
 
     private void loadAcademicYears() {
         try {
-            academicYearComboBox.setItems(FXCollections.observableArrayList(
-                    Main.getAppState().getMessageDispatcher().getAcademicYears().getAcademicYears()));
+            var academicYears = FXCollections.observableArrayList(
+                    Main.getAppState().getMessageDispatcher().getAcademicYears().getAcademicYears());
+            academicYearsById.clear();
+            academicYears.forEach(year -> academicYearsById.put(year.getId(), year));
+            academicYearComboBox.setItems(academicYears);
         } catch (Exception e) {
             statusLabel.setText("Unable to load academic years: " + e.getMessage());
         }
@@ -109,8 +117,14 @@ public class SemesterController {
             @Override
             protected void updateItem(Semester item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName() + " (Academic Year ID " + item.getAcademicYearId() + ")");
+                setText(empty || item == null ? null : describeSemester(item));
             }
         });
+    }
+
+    private String describeSemester(Semester semester) {
+        AcademicYear academicYear = academicYearsById.get(semester.getAcademicYearId());
+        String yearLabel = academicYear == null ? "Academic Year #" + semester.getAcademicYearId() : academicYear.getLabel();
+        return semester.getName() + " (" + yearLabel + ")";
     }
 }

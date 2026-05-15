@@ -3,6 +3,7 @@ package com.quizapp.client.controller.teacher;
 import com.quizapp.client.Main;
 import com.quizapp.client.app.AppRoute;
 import com.quizapp.shared.message.academic.EntityResponseMessage;
+import com.quizapp.shared.model.AcademicYear;
 import com.quizapp.shared.model.Batch;
 import com.quizapp.shared.model.Section;
 import com.quizapp.shared.model.Semester;
@@ -13,6 +14,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SectionController {
     @FXML
@@ -33,8 +37,13 @@ public class SectionController {
     @FXML
     private ListView<Section> sectionListView;
 
+    private final Map<Integer, Batch> batchesById = new HashMap<>();
+    private final Map<Integer, Semester> semestersById = new HashMap<>();
+    private final Map<Integer, AcademicYear> academicYearsById = new HashMap<>();
+
     @FXML
     private void initialize() {
+        loadAcademicYears();
         loadBatches();
         loadSemesters();
         configureLists();
@@ -85,6 +94,8 @@ public class SectionController {
         try {
             var batches = FXCollections.observableArrayList(
                     Main.getAppState().getMessageDispatcher().getBatches().getBatches());
+            batchesById.clear();
+            batches.forEach(batch -> batchesById.put(batch.getId(), batch));
             batchComboBox.setItems(batches);
             batchListView.setItems(batches);
         } catch (Exception e) {
@@ -94,8 +105,11 @@ public class SectionController {
 
     private void loadSemesters() {
         try {
-            semesterComboBox.setItems(FXCollections.observableArrayList(
-                    Main.getAppState().getMessageDispatcher().getSemesters().getSemesters()));
+            var semesters = FXCollections.observableArrayList(
+                    Main.getAppState().getMessageDispatcher().getSemesters().getSemesters());
+            semestersById.clear();
+            semesters.forEach(semester -> semestersById.put(semester.getId(), semester));
+            semesterComboBox.setItems(semesters);
         } catch (Exception e) {
             statusLabel.setText("Unable to load semesters: " + e.getMessage());
         }
@@ -115,22 +129,46 @@ public class SectionController {
             @Override
             protected void updateItem(Semester item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName() + " (Academic Year ID " + item.getAcademicYearId() + ")");
+                setText(empty || item == null ? null : describeSemester(item));
             }
         });
         semesterComboBox.setButtonCell(new ListCell<>() {
             @Override
             protected void updateItem(Semester item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName() + " (Academic Year ID " + item.getAcademicYearId() + ")");
+                setText(empty || item == null ? null : describeSemester(item));
             }
         });
         sectionListView.setCellFactory(list -> new ListCell<>() {
             @Override
             protected void updateItem(Section item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName() + " (Batch ID " + item.getBatchId() + ", Semester ID " + item.getSemesterId() + ")");
+                setText(empty || item == null ? null : describeSection(item));
             }
         });
+    }
+
+    private void loadAcademicYears() {
+        try {
+            academicYearsById.clear();
+            Main.getAppState().getMessageDispatcher().getAcademicYears().getAcademicYears()
+                    .forEach(year -> academicYearsById.put(year.getId(), year));
+        } catch (Exception e) {
+            statusLabel.setText("Unable to load academic years: " + e.getMessage());
+        }
+    }
+
+    private String describeSemester(Semester semester) {
+        AcademicYear academicYear = academicYearsById.get(semester.getAcademicYearId());
+        String yearLabel = academicYear == null ? "Academic Year #" + semester.getAcademicYearId() : academicYear.getLabel();
+        return semester.getName() + " (" + yearLabel + ")";
+    }
+
+    private String describeSection(Section section) {
+        Batch batch = batchesById.get(section.getBatchId());
+        Semester semester = semestersById.get(section.getSemesterId());
+        String batchLabel = batch == null ? "Batch #" + section.getBatchId() : batch.getProgram() + " Batch " + batch.getEntryYear();
+        String semesterLabel = semester == null ? "Semester #" + section.getSemesterId() : semester.getName();
+        return section.getName() + " - " + batchLabel + " - " + semesterLabel;
     }
 }
