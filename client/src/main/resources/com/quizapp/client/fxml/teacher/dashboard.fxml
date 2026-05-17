@@ -15,5 +15,7 @@
     <Button mnemonicParsing="false" onAction="#handleOpenBatch" text="Manage batches" />
     <Button mnemonicParsing="false" onAction="#handleOpenSemester" text="Manage semesters" />
     <Button mnemonicParsing="false" onAction="#handleOpenSection" text="Manage sections" />
+    <Button mnemonicParsing="false" onAction="#handleOpenQuizBuilder" text="Quiz builder" />
+    <Button mnemonicParsing="false" onAction="#handleOpenQuizSessions" text="Quiz sessions" />
     <Button mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
 </VBox>

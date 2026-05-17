@@ -41,6 +41,8 @@ import com.quizapp.shared.message.quiz.CreateQuizMessage;
 import com.quizapp.shared.message.quiz.CreateQuizResponseMessage;
 import com.quizapp.shared.message.quiz.GetActiveQuizzesMessage;
 import com.quizapp.shared.message.quiz.GetActiveQuizzesResponseMessage;
+import com.quizapp.shared.message.quiz.GetTeacherQuizzesMessage;
+import com.quizapp.shared.message.quiz.GetTeacherQuizzesResponseMessage;
 import com.quizapp.shared.message.quiz.JoinQuizMessage;
 import com.quizapp.shared.message.quiz.JoinQuizResponseMessage;
 import com.quizapp.shared.message.quiz.StartQuizMessage;
@@ -170,6 +172,9 @@ public class ClientHandler implements Runnable {
             if (payload instanceof GetActiveQuizzesMessage) {
                 return handleGetActiveQuizzes();
             }
+            if (payload instanceof GetTeacherQuizzesMessage message) {
+                return handleGetTeacherQuizzes(message);
+            }
             if (payload instanceof JoinQuizMessage message) {
                 return handleJoinQuiz(message);
             }
@@ -266,6 +271,10 @@ public class ClientHandler implements Runnable {
 
     private GetActiveQuizzesResponseMessage handleGetActiveQuizzes() throws SQLException {
         return new GetActiveQuizzesResponseMessage(quizService.getActiveQuizzes());
+    }
+
+    private GetTeacherQuizzesResponseMessage handleGetTeacherQuizzes(GetTeacherQuizzesMessage message) throws SQLException {
+        return new GetTeacherQuizzesResponseMessage(quizService.getQuizzesForTeacher(message.getTeacherId()));
     }
 
     private JoinQuizResponseMessage handleJoinQuiz(JoinQuizMessage message) throws SQLException {

@@ -149,6 +149,10 @@ public class QuizService {
         return quizDao.findByStatus("ACTIVE");
     }
 
+    public List<Quiz> getQuizzesForTeacher(int teacherId) throws SQLException {
+        return quizDao.findByCreatedBy(teacherId);
+    }
+
     public List<CreateQuizMessage.QuestionPayload> buildQuizPayload(int quizId) throws SQLException {
         if (quizDao.findById(quizId).isEmpty()) {
             throw new IllegalArgumentException("Quiz not found.");

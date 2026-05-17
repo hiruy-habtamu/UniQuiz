@@ -41,4 +41,14 @@ public class DashboardController {
     private void handleOpenSection() {
         Main.getAppNavigator().navigateTo(AppRoute.TEACHER_SECTION);
     }
+
+    @FXML
+    private void handleOpenQuizBuilder() {
+        Main.getAppNavigator().navigateTo(AppRoute.TEACHER_QUIZ_BUILDER);
+    }
+
+    @FXML
+    private void handleOpenQuizSessions() {
+        Main.getAppNavigator().navigateTo(AppRoute.TEACHER_SESSION);
+    }
 }

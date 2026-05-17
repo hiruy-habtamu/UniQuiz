@@ -93,6 +93,23 @@ public class QuizDao {
         return quizzes;
     }
 
+    public List<Quiz> findByCreatedBy(int teacherId) throws SQLException {
+        String sql = BASE_SELECT + "WHERE created_by = ? ORDER BY created_at DESC, id DESC";
+        List<Quiz> quizzes = new ArrayList<>();
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, teacherId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    quizzes.add(mapRow(resultSet));
+                }
+            }
+        }
+
+        return quizzes;
+    }
+
     public int insert(Quiz quiz) throws SQLException {
         String sql = """
                 INSERT INTO quizzes (title, semester_id, created_by, time_limit_secs, passing_score, status)

@@ -27,6 +27,8 @@ import com.quizapp.shared.message.quiz.CreateQuizMessage;
 import com.quizapp.shared.message.quiz.CreateQuizResponseMessage;
 import com.quizapp.shared.message.quiz.GetActiveQuizzesMessage;
 import com.quizapp.shared.message.quiz.GetActiveQuizzesResponseMessage;
+import com.quizapp.shared.message.quiz.GetTeacherQuizzesMessage;
+import com.quizapp.shared.message.quiz.GetTeacherQuizzesResponseMessage;
 import com.quizapp.shared.message.quiz.JoinQuizMessage;
 import com.quizapp.shared.message.quiz.JoinQuizResponseMessage;
 import com.quizapp.shared.message.quiz.StartQuizMessage;
@@ -113,6 +115,10 @@ public class MessageDispatcher {
 
     public GetActiveQuizzesResponseMessage getActiveQuizzes() throws IOException, ClassNotFoundException {
         return expect(GetActiveQuizzesResponseMessage.class, connection.send(new GetActiveQuizzesMessage()));
+    }
+
+    public GetTeacherQuizzesResponseMessage getTeacherQuizzes(int teacherId) throws IOException, ClassNotFoundException {
+        return expect(GetTeacherQuizzesResponseMessage.class, connection.send(new GetTeacherQuizzesMessage(teacherId)));
     }
 
     public JoinQuizResponseMessage joinQuiz(int quizId, int studentId) throws IOException, ClassNotFoundException {

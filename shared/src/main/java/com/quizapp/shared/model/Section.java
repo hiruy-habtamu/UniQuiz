@@ -21,4 +21,8 @@ public class Section implements Serializable {
     public void setName(String name) { this.name = name; }
     public void setBatchId(int batchId) { this.batchId = batchId; }
     public void setSemesterId(int semesterId) { this.semesterId = semesterId; }
+    @Override
+    public String toString() {
+        return name;
+    }
 }
