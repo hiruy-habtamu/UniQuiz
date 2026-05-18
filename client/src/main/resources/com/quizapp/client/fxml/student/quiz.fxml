@@ -11,6 +11,7 @@
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
     <Label fx:id="quizTitleLabel" text="Quiz" />
+    <Label fx:id="timerLabel" text="Time Left: 00:00" />
     <Label fx:id="questionCounterLabel" />
     <Label fx:id="questionBodyLabel" maxWidth="520" wrapText="true" />
     <ListView fx:id="choiceList" maxHeight="220" maxWidth="520" prefHeight="220" prefWidth="520" />

@@ -38,6 +38,10 @@ public class AppNavigator {
         }
     }
 
+    public Stage getStage() {
+        return stage;
+    }
+
     private Scene loadScene(AppRoute route) throws IOException {
         URL resource = AppNavigator.class.getResource(route.getFxmlPath());
         if (resource == null) {

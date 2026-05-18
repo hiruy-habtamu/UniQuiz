@@ -5,7 +5,11 @@ import com.quizapp.shared.message.quiz.CreateQuizMessage;
 import com.quizapp.shared.model.Quiz;
 import com.quizapp.shared.model.User;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 public class AppState {
     private final MessageDispatcher messageDispatcher;
@@ -14,6 +18,9 @@ public class AppState {
     private User loggedInUser;
     private Quiz currentQuiz;
     private List<CreateQuizMessage.QuestionPayload> currentQuizQuestions;
+    private final Map<Integer, Integer> selectedChoiceByQuestionId = new HashMap<>();
+    private final Set<Integer> submittedQuestionIds = new HashSet<>();
+    private QuizResultSummary lastQuizResult;
 
     public AppState(MessageDispatcher messageDispatcher) {
         this.messageDispatcher = messageDispatcher;
@@ -55,9 +62,32 @@ public class AppState {
         this.currentQuizQuestions = currentQuizQuestions;
     }
 
-    public void clearSession() {
-        loggedInUser = null;
+    public Map<Integer, Integer> getSelectedChoiceByQuestionId() {
+        return selectedChoiceByQuestionId;
+    }
+
+    public Set<Integer> getSubmittedQuestionIds() {
+        return submittedQuestionIds;
+    }
+
+    public QuizResultSummary getLastQuizResult() {
+        return lastQuizResult;
+    }
+
+    public void setLastQuizResult(QuizResultSummary lastQuizResult) {
+        this.lastQuizResult = lastQuizResult;
+    }
+
+    public void clearCurrentQuizState() {
         currentQuiz = null;
         currentQuizQuestions = null;
+        selectedChoiceByQuestionId.clear();
+        submittedQuestionIds.clear();
+    }
+
+    public void clearSession() {
+        loggedInUser = null;
+        clearCurrentQuizState();
+        lastQuizResult = null;
     }
 }

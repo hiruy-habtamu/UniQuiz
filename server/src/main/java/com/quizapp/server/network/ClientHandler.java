@@ -203,9 +203,13 @@ public class ClientHandler implements Runnable {
     }
 
     private RegisterResponseMessage handleRegister(RegisterMessage message) throws SQLException {
-        authService.register(message.getUsername(), message.getPassword(), message.getFullName(),
-                message.getRole(), message.getBatchId());
-        return new RegisterResponseMessage(true, null);
+        try {
+            authService.register(message.getUsername(), message.getPassword(), message.getFullName(),
+                    message.getRole(), message.getBatchId());
+            return new RegisterResponseMessage(true, null);
+        } catch (IllegalArgumentException e) {
+            return new RegisterResponseMessage(false, e.getMessage());
+        }
     }
 
     private GetBatchesResponseMessage handleGetBatches() throws SQLException {

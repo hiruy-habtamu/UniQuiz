@@ -6,6 +6,7 @@ public enum AppRoute {
     TEACHER_DASHBOARD("/com/quizapp/client/fxml/teacher/dashboard.fxml", "UniQuiz Teacher"),
     STUDENT_LOBBY("/com/quizapp/client/fxml/student/lobby.fxml", "UniQuiz Student"),
     STUDENT_QUIZ("/com/quizapp/client/fxml/student/quiz.fxml", "UniQuiz Quiz"),
+    STUDENT_RESULTS("/com/quizapp/client/fxml/teacher/results.fxml", "UniQuiz Results"),
     TEACHER_QUIZ_BUILDER("/com/quizapp/client/fxml/teacher/quiz-builder.fxml", "UniQuiz Quiz Builder"),
     TEACHER_SESSION("/com/quizapp/client/fxml/teacher/session.fxml", "UniQuiz Quiz Sessions"),
     TEACHER_ACADEMIC_YEAR("/com/quizapp/client/fxml/teacher/academic-year.fxml", "UniQuiz Academic Year"),
