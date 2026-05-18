@@ -10,6 +10,7 @@ import com.quizapp.server.service.SectionService;
 import com.quizapp.server.service.SemesterService;
 import com.quizapp.server.service.TeacherSectionService;
 import com.quizapp.server.session.SessionRegistry;
+import com.quizapp.shared.config.AppEnv;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -31,7 +32,7 @@ public class ServerBootstrap {
     private final SessionRegistry sessionRegistry;
 
     public ServerBootstrap() {
-        this(DEFAULT_PORT, new AuthService(), new QuizService(), new AcademicYearService(), new BatchService(), new SemesterService(),
+        this(AppEnv.getInt("SERVER_PORT", DEFAULT_PORT), new AuthService(), new QuizService(), new AcademicYearService(), new BatchService(), new SemesterService(),
                 new SectionService(), new EnrollmentService(), new TeacherSectionService(),
                 new OnlineRegistry(), new SessionRegistry());
     }

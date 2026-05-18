@@ -1,5 +1,6 @@
 package com.quizapp.client.network;
 
+import com.quizapp.shared.config.AppEnv;
 import com.quizapp.shared.message.Message;
 
 import java.io.Closeable;
@@ -20,7 +21,8 @@ public class ServerConnection {
     private ObjectInputStream input;
 
     public ServerConnection() {
-        this(DEFAULT_HOST, DEFAULT_PORT);
+        this(AppEnv.get("CLIENT_SERVER_HOST", DEFAULT_HOST),
+                AppEnv.getInt("CLIENT_SERVER_PORT", DEFAULT_PORT));
     }
 
     public ServerConnection(String host, int port) {
