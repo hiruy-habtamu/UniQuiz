@@ -163,7 +163,8 @@ public class ServerSmokeTest {
         FakeQuestionDao questionDao = new FakeQuestionDao();
         FakeChoiceDao choiceDao = new FakeChoiceDao();
         FakeAnswerDao answerDao = new FakeAnswerDao();
-        QuizService quizService = new QuizService(quizDao, questionDao, choiceDao, answerDao, semesterDao, userDao);
+        FakeSectionDao sectionDao = new FakeSectionDao();
+        QuizService quizService = new QuizService(quizDao, questionDao, choiceDao, answerDao, semesterDao, userDao, sectionDao);
 
         Quiz quiz = new Quiz();
         quiz.setTitle("Java Basics");

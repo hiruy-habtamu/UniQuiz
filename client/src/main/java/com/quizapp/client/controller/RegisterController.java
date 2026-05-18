@@ -8,16 +8,21 @@ import com.quizapp.shared.message.academic.GetBatchesResponseMessage;
 import com.quizapp.shared.message.academic.GetSectionsResponseMessage;
 import com.quizapp.shared.message.auth.LoginResponseMessage;
 import com.quizapp.shared.message.auth.RegisterResponseMessage;
+import com.quizapp.shared.model.AcademicYear;
 import com.quizapp.shared.model.Batch;
 import com.quizapp.shared.model.Section;
+import com.quizapp.shared.model.Semester;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RegisterController {
     @FXML
@@ -41,12 +46,18 @@ public class RegisterController {
     @FXML
     private Label statusLabel;
 
+    private final Map<Integer, Semester> semestersById = new HashMap<>();
+    private final Map<Integer, AcademicYear> academicYearsById = new HashMap<>();
+
     @FXML
     private void initialize() {
         roleComboBox.setItems(FXCollections.observableArrayList("TEACHER", "STUDENT"));
         roleComboBox.setValue("STUDENT");
         roleComboBox.valueProperty().addListener((ignored, oldValue, newValue) -> updateRoleFields(newValue));
         batchComboBox.valueProperty().addListener((ignored, oldValue, newValue) -> loadSectionsForBatch(newValue));
+        configureSectionComboBox();
+        loadAcademicYears();
+        loadSemesters();
         updateRoleFields(roleComboBox.getValue());
         loadBatches();
     }
@@ -133,5 +144,52 @@ public class RegisterController {
             batchComboBox.getSelectionModel().clearSelection();
             sectionComboBox.getItems().clear();
         }
+    }
+
+    private void configureSectionComboBox() {
+        sectionComboBox.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Section item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : describeSection(item));
+            }
+        });
+        sectionComboBox.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Section item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : describeSection(item));
+            }
+        });
+    }
+
+    private void loadSemesters() {
+        try {
+            semestersById.clear();
+            Main.getAppState().getMessageDispatcher().getSemesters().getSemesters()
+                    .forEach(semester -> semestersById.put(semester.getId(), semester));
+        } catch (Exception e) {
+            statusLabel.setText("Unable to load semesters: " + e.getMessage());
+        }
+    }
+
+    private void loadAcademicYears() {
+        try {
+            academicYearsById.clear();
+            Main.getAppState().getMessageDispatcher().getAcademicYears().getAcademicYears()
+                    .forEach(year -> academicYearsById.put(year.getId(), year));
+        } catch (Exception e) {
+            statusLabel.setText("Unable to load academic years: " + e.getMessage());
+        }
+    }
+
+    private String describeSection(Section section) {
+        Semester semester = semestersById.get(section.getSemesterId());
+        if (semester == null) {
+            return section.getName();
+        }
+        AcademicYear academicYear = academicYearsById.get(semester.getAcademicYearId());
+        String yearLabel = academicYear == null ? "Academic Year #" + semester.getAcademicYearId() : academicYear.getLabel();
+        return section.getName() + " - " + semester.getName() + " (" + yearLabel + ")" + (semester.isActive() ? " - ACTIVE" : " - INACTIVE");
     }
 }

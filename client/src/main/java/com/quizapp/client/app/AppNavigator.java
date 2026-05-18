@@ -3,9 +3,14 @@ package com.quizapp.client.app;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 
 public class AppNavigator {
@@ -27,6 +32,8 @@ public class AppNavigator {
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
+            e.printStackTrace();
+            showLoadError(route, e);
             throw new IllegalStateException("Failed to load route: " + route, e);
         }
     }
@@ -44,5 +51,42 @@ public class AppNavigator {
             scene.getStylesheets().add(theme.toExternalForm());
         }
         return scene;
+    }
+
+    private void showLoadError(AppRoute route, IOException error) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Route Load Error");
+        alert.setHeaderText("Failed to load route: " + route);
+
+        Throwable root = rootCause(error);
+        alert.setContentText(root.getClass().getSimpleName() + ": " + root.getMessage());
+
+        TextArea details = new TextArea(stackTrace(error));
+        details.setEditable(false);
+        details.setWrapText(false);
+        details.setPrefRowCount(18);
+        details.setPrefColumnCount(90);
+
+        VBox container = new VBox(details);
+        container.setSpacing(8);
+        alert.getDialogPane().setExpandableContent(container);
+        alert.getDialogPane().setExpanded(true);
+        alert.showAndWait();
+    }
+
+    private Throwable rootCause(Throwable throwable) {
+        Throwable current = throwable;
+        while (current.getCause() != null) {
+            current = current.getCause();
+        }
+        return current;
+    }
+
+    private String stackTrace(Throwable throwable) {
+        StringWriter writer = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(writer);
+        throwable.printStackTrace(printWriter);
+        printWriter.flush();
+        return writer.toString();
     }
 }

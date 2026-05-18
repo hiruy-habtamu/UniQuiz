@@ -68,6 +68,15 @@ public class SemesterService {
         return id;
     }
 
+    public void setSemesterActive(int semesterId, boolean active) throws SQLException {
+        Semester semester = semesterDao.findById(semesterId)
+                .orElseThrow(() -> new IllegalArgumentException("Semester not found."));
+        semesterDao.updateActive(semesterId, active);
+        if (active) {
+            semesterDao.deactivateAllInAcademicYearExcept(semester.getAcademicYearId(), semesterId);
+        }
+    }
+
     private void validateSemester(Semester semester) {
         if (semester == null) {
             throw new IllegalArgumentException("Semester is required.");

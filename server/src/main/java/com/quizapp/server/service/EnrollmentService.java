@@ -4,10 +4,12 @@ import com.quizapp.server.dao.EnrollmentDao;
 import com.quizapp.server.dao.SectionDao;
 import com.quizapp.server.dao.UserDao;
 import com.quizapp.shared.model.Enrollment;
+import com.quizapp.shared.model.Section;
 import com.quizapp.shared.model.User;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class EnrollmentService {
     private final EnrollmentDao enrollmentDao;
@@ -26,6 +28,14 @@ public class EnrollmentService {
 
     public List<Enrollment> getEnrollmentsForStudent(int studentId) throws SQLException {
         return enrollmentDao.findByStudentId(studentId);
+    }
+
+    public Optional<Section> getPrimarySectionForStudent(int studentId) throws SQLException {
+        List<Enrollment> enrollments = enrollmentDao.findByStudentId(studentId);
+        if (enrollments.isEmpty()) {
+            return Optional.empty();
+        }
+        return sectionDao.findById(enrollments.getFirst().getSectionId());
     }
 
     public List<Enrollment> getEnrollmentsForSection(int sectionId) throws SQLException {

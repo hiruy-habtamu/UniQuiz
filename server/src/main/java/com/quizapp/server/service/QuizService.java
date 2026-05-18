@@ -4,6 +4,7 @@ import com.quizapp.server.dao.AnswerDao;
 import com.quizapp.server.dao.ChoiceDao;
 import com.quizapp.server.dao.QuestionDao;
 import com.quizapp.server.dao.QuizDao;
+import com.quizapp.server.dao.SectionDao;
 import com.quizapp.server.dao.SemesterDao;
 import com.quizapp.server.dao.UserDao;
 import com.quizapp.shared.message.quiz.CreateQuizMessage;
@@ -11,6 +12,8 @@ import com.quizapp.shared.model.Answer;
 import com.quizapp.shared.model.Choice;
 import com.quizapp.shared.model.Question;
 import com.quizapp.shared.model.Quiz;
+import com.quizapp.shared.model.Section;
+import com.quizapp.shared.model.Semester;
 import com.quizapp.shared.model.User;
 
 import java.sql.SQLException;
@@ -25,19 +28,21 @@ public class QuizService {
     private final AnswerDao answerDao;
     private final SemesterDao semesterDao;
     private final UserDao userDao;
+    private final SectionDao sectionDao;
 
     public QuizService() {
-        this(new QuizDao(), new QuestionDao(), new ChoiceDao(), new AnswerDao(), new SemesterDao(), new UserDao());
+        this(new QuizDao(), new QuestionDao(), new ChoiceDao(), new AnswerDao(), new SemesterDao(), new UserDao(), new SectionDao());
     }
 
     public QuizService(QuizDao quizDao, QuestionDao questionDao, ChoiceDao choiceDao,
-                       AnswerDao answerDao, SemesterDao semesterDao, UserDao userDao) {
+                       AnswerDao answerDao, SemesterDao semesterDao, UserDao userDao, SectionDao sectionDao) {
         this.quizDao = quizDao;
         this.questionDao = questionDao;
         this.choiceDao = choiceDao;
         this.answerDao = answerDao;
         this.semesterDao = semesterDao;
         this.userDao = userDao;
+        this.sectionDao = sectionDao;
     }
 
     public int createQuiz(Quiz quiz) throws SQLException {
@@ -138,6 +143,15 @@ public class QuizService {
     }
 
     public void startQuiz(int quizId) throws SQLException {
+        Quiz quiz = quizDao.findById(quizId).orElseThrow(() -> new IllegalArgumentException("Quiz not found."));
+        Semester semester = semesterDao.findById(quiz.getSemesterId())
+                .orElseThrow(() -> new IllegalArgumentException("Semester not found."));
+        if (!semester.isActive()) {
+            throw new IllegalArgumentException("Quiz semester is not active.");
+        }
+        if (!List.of("DRAFT", "CLOSED").contains(String.valueOf(quiz.getStatus()).toUpperCase())) {
+            throw new IllegalArgumentException("Only draft or closed quizzes can be started.");
+        }
         updateQuizStatus(quizId, "ACTIVE");
     }
 
@@ -151,6 +165,18 @@ public class QuizService {
 
     public List<Quiz> getQuizzesForTeacher(int teacherId) throws SQLException {
         return quizDao.findByCreatedBy(teacherId);
+    }
+
+    public List<Quiz> getActiveQuizzesForSemester(int semesterId) throws SQLException {
+        return quizDao.findBySemesterId(semesterId).stream()
+                .filter(quiz -> "ACTIVE".equalsIgnoreCase(quiz.getStatus()))
+                .toList();
+    }
+
+    public boolean canStudentJoinQuizInSemester(int studentId, int quizId, int sectionId) throws SQLException {
+        Quiz quiz = quizDao.findById(quizId).orElseThrow(() -> new IllegalArgumentException("Quiz not found."));
+        Section section = sectionDao.findById(sectionId).orElseThrow(() -> new IllegalArgumentException("Section not found."));
+        return quiz.getSemesterId() == section.getSemesterId();
     }
 
     public List<CreateQuizMessage.QuestionPayload> buildQuizPayload(int quizId) throws SQLException {
@@ -182,7 +208,11 @@ public class QuizService {
         if (quiz.getPassingScore() < 0 || quiz.getPassingScore() > 100) {
             throw new IllegalArgumentException("Passing score must be between 0 and 100.");
         }
-        semesterDao.findById(quiz.getSemesterId()).orElseThrow(() -> new IllegalArgumentException("Semester not found."));
+        Semester semester = semesterDao.findById(quiz.getSemesterId())
+                .orElseThrow(() -> new IllegalArgumentException("Semester not found."));
+        if (!semester.isActive()) {
+            throw new IllegalArgumentException("Quiz can only be created for an active semester.");
+        }
         User creator = userDao.findById(quiz.getCreatedBy())
                 .orElseThrow(() -> new IllegalArgumentException("Quiz creator not found."));
         if (!"TEACHER".equalsIgnoreCase(creator.getRole())) {

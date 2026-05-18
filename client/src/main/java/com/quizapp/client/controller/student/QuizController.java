@@ -45,22 +45,28 @@ public class QuizController {
 
     @FXML
     private void initialize() {
-        if (Main.getAppState().getCurrentQuiz() == null || Main.getAppState().getCurrentQuizQuestions() == null) {
-            statusLabel.setText("No active quiz loaded.");
-            quizContainer.setDisable(true);
-            return;
-        }
-
-        questions = new ArrayList<>(Main.getAppState().getCurrentQuizQuestions());
-        quizTitleLabel.setText(Main.getAppState().getCurrentQuiz().getTitle());
-        choiceList.setCellFactory(list -> new ListCell<>() {
-            @Override
-            protected void updateItem(CreateQuizMessage.ChoicePayload item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getBody());
+        try {
+            if (Main.getAppState().getCurrentQuiz() == null || Main.getAppState().getCurrentQuizQuestions() == null) {
+                statusLabel.setText("No active quiz loaded.");
+                quizContainer.setDisable(true);
+                return;
             }
-        });
-        renderQuestion();
+
+            questions = new ArrayList<>(Main.getAppState().getCurrentQuizQuestions());
+            quizTitleLabel.setText(Main.getAppState().getCurrentQuiz().getTitle());
+            choiceList.setCellFactory(list -> new ListCell<>() {
+                @Override
+                protected void updateItem(CreateQuizMessage.ChoicePayload item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : item.getBody());
+                }
+            });
+            renderQuestion();
+        } catch (Exception e) {
+            e.printStackTrace();
+            statusLabel.setText("Quiz screen init failed: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            quizContainer.setDisable(true);
+        }
     }
 
     @FXML

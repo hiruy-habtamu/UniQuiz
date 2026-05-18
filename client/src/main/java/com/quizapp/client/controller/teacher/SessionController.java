@@ -156,12 +156,15 @@ public class SessionController {
             return;
         }
 
+        Semester semester = semestersById.get(quiz.getSemesterId());
+        boolean semesterActive = semester != null && semester.isActive();
         selectedQuizTitleLabel.setText(quiz.getTitle());
-        selectedQuizSemesterLabel.setText(describeSemester(quiz.getSemesterId()));
+        selectedQuizSemesterLabel.setText(describeSemester(quiz.getSemesterId()) + (semesterActive ? " - ACTIVE" : " - INACTIVE"));
         selectedQuizStatusLabel.setText(quiz.getStatus());
         selectedQuizTimeLimitLabel.setText(quiz.getTimeLimitSecs() + " seconds");
         selectedQuizPassingScoreLabel.setText(quiz.getPassingScore() + "%");
-        startQuizButton.setDisable(!"DRAFT".equalsIgnoreCase(quiz.getStatus()));
+        boolean startableStatus = "DRAFT".equalsIgnoreCase(quiz.getStatus()) || "CLOSED".equalsIgnoreCase(quiz.getStatus());
+        startQuizButton.setDisable(!(startableStatus && semesterActive));
         closeQuizButton.setDisable(!"ACTIVE".equalsIgnoreCase(quiz.getStatus()));
     }
 

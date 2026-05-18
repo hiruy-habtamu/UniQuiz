@@ -18,6 +18,7 @@ import com.quizapp.shared.message.academic.GetSemestersMessage;
 import com.quizapp.shared.message.academic.GetSemestersResponseMessage;
 import com.quizapp.shared.message.academic.GetSectionsMessage;
 import com.quizapp.shared.message.academic.GetSectionsResponseMessage;
+import com.quizapp.shared.message.academic.SetSemesterActiveMessage;
 import com.quizapp.shared.message.auth.LoginMessage;
 import com.quizapp.shared.message.auth.LoginResponseMessage;
 import com.quizapp.shared.message.auth.RegisterMessage;
@@ -27,6 +28,8 @@ import com.quizapp.shared.message.quiz.CreateQuizMessage;
 import com.quizapp.shared.message.quiz.CreateQuizResponseMessage;
 import com.quizapp.shared.message.quiz.GetActiveQuizzesMessage;
 import com.quizapp.shared.message.quiz.GetActiveQuizzesResponseMessage;
+import com.quizapp.shared.message.quiz.GetStudentActiveQuizzesMessage;
+import com.quizapp.shared.message.quiz.GetStudentActiveQuizzesResponseMessage;
 import com.quizapp.shared.message.quiz.GetTeacherQuizzesMessage;
 import com.quizapp.shared.message.quiz.GetTeacherQuizzesResponseMessage;
 import com.quizapp.shared.message.quiz.JoinQuizMessage;
@@ -78,6 +81,10 @@ public class MessageDispatcher {
         return expect(GetSectionsResponseMessage.class, connection.send(new GetSectionsMessage(batchId)));
     }
 
+    public ActionResponseMessage setSemesterActive(int semesterId, boolean active) throws IOException, ClassNotFoundException {
+        return expect(ActionResponseMessage.class, connection.send(new SetSemesterActiveMessage(semesterId, active)));
+    }
+
     public ActionResponseMessage assignStudentSection(int studentId, int sectionId)
             throws IOException, ClassNotFoundException {
         AssignStudentSectionMessage request = new AssignStudentSectionMessage(studentId, sectionId);
@@ -115,6 +122,10 @@ public class MessageDispatcher {
 
     public GetActiveQuizzesResponseMessage getActiveQuizzes() throws IOException, ClassNotFoundException {
         return expect(GetActiveQuizzesResponseMessage.class, connection.send(new GetActiveQuizzesMessage()));
+    }
+
+    public GetStudentActiveQuizzesResponseMessage getStudentActiveQuizzes(int studentId) throws IOException, ClassNotFoundException {
+        return expect(GetStudentActiveQuizzesResponseMessage.class, connection.send(new GetStudentActiveQuizzesMessage(studentId)));
     }
 
     public GetTeacherQuizzesResponseMessage getTeacherQuizzes(int teacherId) throws IOException, ClassNotFoundException {

@@ -21,6 +21,8 @@
     <CheckBox fx:id="activeCheckBox" mnemonicParsing="false" text="Set as active" />
     <Button mnemonicParsing="false" onAction="#handleCreateSemester" text="Create semester" />
     <ListView fx:id="semesterListView" maxHeight="220" maxWidth="420" prefHeight="200" prefWidth="420" />
+    <Button fx:id="activateButton" mnemonicParsing="false" onAction="#handleActivateSemester" text="Activate selected semester" />
+    <Button fx:id="deactivateButton" mnemonicParsing="false" onAction="#handleDeactivateSemester" text="Deactivate selected semester" />
     <Button mnemonicParsing="false" onAction="#handleBack" text="Back" />
     <Label fx:id="statusLabel" wrapText="true" />
 </VBox>

@@ -128,6 +128,17 @@ public class SemesterDao {
         }
     }
 
+    public void updateActive(int semesterId, boolean active) throws SQLException {
+        String sql = "UPDATE semesters SET is_active = ? WHERE id = ?";
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setBoolean(1, active);
+            statement.setInt(2, semesterId);
+            statement.executeUpdate();
+        }
+    }
+
     private Semester mapRow(ResultSet resultSet) throws SQLException {
         Semester semester = new Semester();
         semester.setId(resultSet.getInt("id"));

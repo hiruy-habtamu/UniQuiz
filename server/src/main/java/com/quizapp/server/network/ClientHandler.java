@@ -32,6 +32,7 @@ import com.quizapp.shared.message.academic.GetSemestersMessage;
 import com.quizapp.shared.message.academic.GetSemestersResponseMessage;
 import com.quizapp.shared.message.academic.GetSectionsMessage;
 import com.quizapp.shared.message.academic.GetSectionsResponseMessage;
+import com.quizapp.shared.message.academic.SetSemesterActiveMessage;
 import com.quizapp.shared.message.auth.LoginMessage;
 import com.quizapp.shared.message.auth.LoginResponseMessage;
 import com.quizapp.shared.message.auth.RegisterMessage;
@@ -41,6 +42,8 @@ import com.quizapp.shared.message.quiz.CreateQuizMessage;
 import com.quizapp.shared.message.quiz.CreateQuizResponseMessage;
 import com.quizapp.shared.message.quiz.GetActiveQuizzesMessage;
 import com.quizapp.shared.message.quiz.GetActiveQuizzesResponseMessage;
+import com.quizapp.shared.message.quiz.GetStudentActiveQuizzesMessage;
+import com.quizapp.shared.message.quiz.GetStudentActiveQuizzesResponseMessage;
 import com.quizapp.shared.message.quiz.GetTeacherQuizzesMessage;
 import com.quizapp.shared.message.quiz.GetTeacherQuizzesResponseMessage;
 import com.quizapp.shared.message.quiz.JoinQuizMessage;
@@ -154,6 +157,9 @@ public class ClientHandler implements Runnable {
             if (payload instanceof CreateSectionMessage message) {
                 return handleCreateSection(message);
             }
+            if (payload instanceof SetSemesterActiveMessage message) {
+                return handleSetSemesterActive(message);
+            }
             if (payload instanceof EnrollStudentMessage message) {
                 return handleEnrollStudent(message);
             }
@@ -171,6 +177,9 @@ public class ClientHandler implements Runnable {
             }
             if (payload instanceof GetActiveQuizzesMessage) {
                 return handleGetActiveQuizzes();
+            }
+            if (payload instanceof GetStudentActiveQuizzesMessage message) {
+                return handleGetStudentActiveQuizzes(message);
             }
             if (payload instanceof GetTeacherQuizzesMessage message) {
                 return handleGetTeacherQuizzes(message);
@@ -244,6 +253,11 @@ public class ClientHandler implements Runnable {
         return new EntityResponseMessage(true, null, sectionId);
     }
 
+    private ActionResponseMessage handleSetSemesterActive(SetSemesterActiveMessage message) throws SQLException {
+        semesterService.setSemesterActive(message.getSemesterId(), message.isActive());
+        return new ActionResponseMessage(true, null);
+    }
+
     private ActionResponseMessage handleEnrollStudent(EnrollStudentMessage message) throws SQLException {
         enrollmentService.enrollStudent(message.getStudentId(), message.getSectionId());
         return new ActionResponseMessage(true, null);
@@ -273,6 +287,12 @@ public class ClientHandler implements Runnable {
         return new GetActiveQuizzesResponseMessage(quizService.getActiveQuizzes());
     }
 
+    private GetStudentActiveQuizzesResponseMessage handleGetStudentActiveQuizzes(GetStudentActiveQuizzesMessage message) throws SQLException {
+        var section = enrollmentService.getPrimarySectionForStudent(message.getStudentId())
+                .orElseThrow(() -> new IllegalArgumentException("Student is not enrolled in a section."));
+        return new GetStudentActiveQuizzesResponseMessage(quizService.getActiveQuizzesForSemester(section.getSemesterId()));
+    }
+
     private GetTeacherQuizzesResponseMessage handleGetTeacherQuizzes(GetTeacherQuizzesMessage message) throws SQLException {
         return new GetTeacherQuizzesResponseMessage(quizService.getQuizzesForTeacher(message.getTeacherId()));
     }
@@ -285,6 +305,12 @@ public class ClientHandler implements Runnable {
         }
         if (!"ACTIVE".equalsIgnoreCase(quiz.getStatus())) {
             return new JoinQuizResponseMessage(false, "Quiz is not active.", null, null);
+        }
+
+        var section = enrollmentService.getPrimarySectionForStudent(message.getStudentId())
+                .orElseThrow(() -> new IllegalArgumentException("Student is not enrolled in a section."));
+        if (!quizService.canStudentJoinQuizInSemester(message.getStudentId(), message.getQuizId(), section.getId())) {
+            return new JoinQuizResponseMessage(false, "Quiz is not available for your semester.", null, null);
         }
 
         sessionRegistry.getOrCreate(message.getQuizId(), message.getStudentId());

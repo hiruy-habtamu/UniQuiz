@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -39,6 +40,12 @@ public class SemesterController {
     @FXML
     private ListView<Semester> semesterListView;
 
+    @FXML
+    private Button activateButton;
+
+    @FXML
+    private Button deactivateButton;
+
     private final Map<Integer, AcademicYear> academicYearsById = new HashMap<>();
 
     @FXML
@@ -47,6 +54,9 @@ public class SemesterController {
         loadAcademicYears();
         configureSemesterList();
         loadSemesters();
+        clearSelectionActions();
+        semesterListView.getSelectionModel().selectedItemProperty()
+                .addListener((ignored, oldValue, newValue) -> updateSelectedSemester(newValue));
     }
 
     @FXML
@@ -91,6 +101,16 @@ public class SemesterController {
         Main.getAppNavigator().navigateTo(AppRoute.TEACHER_DASHBOARD);
     }
 
+    @FXML
+    private void handleActivateSemester() {
+        updateSemesterActive(true);
+    }
+
+    @FXML
+    private void handleDeactivateSemester() {
+        updateSemesterActive(false);
+    }
+
     private void loadAcademicYears() {
         try {
             var academicYears = FXCollections.observableArrayList(
@@ -117,7 +137,7 @@ public class SemesterController {
             @Override
             protected void updateItem(Semester item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : describeSemester(item));
+                setText(empty || item == null ? null : describeSemester(item) + (item.isActive() ? " - ACTIVE" : " - INACTIVE"));
             }
         });
     }
@@ -126,5 +146,47 @@ public class SemesterController {
         AcademicYear academicYear = academicYearsById.get(semester.getAcademicYearId());
         String yearLabel = academicYear == null ? "Academic Year #" + semester.getAcademicYearId() : academicYear.getLabel();
         return semester.getName() + " (" + yearLabel + ")";
+    }
+
+    private void updateSemesterActive(boolean active) {
+        Semester selectedSemester = semesterListView.getSelectionModel().getSelectedItem();
+        if (selectedSemester == null) {
+            statusLabel.setText("Select a semester first.");
+            return;
+        }
+
+        try {
+            var response = Main.getAppState().getMessageDispatcher().setSemesterActive(selectedSemester.getId(), active);
+            statusLabel.setText(response.isSuccess()
+                    ? (active ? "Semester activated." : "Semester deactivated.")
+                    : response.getReason());
+            if (response.isSuccess()) {
+                loadSemesters();
+                reselectSemester(selectedSemester.getId());
+            }
+        } catch (Exception e) {
+            statusLabel.setText("Unable to update semester status: " + e.getMessage());
+        }
+    }
+
+    private void updateSelectedSemester(Semester semester) {
+        if (semester == null) {
+            clearSelectionActions();
+            return;
+        }
+        activateButton.setDisable(semester.isActive());
+        deactivateButton.setDisable(!semester.isActive());
+    }
+
+    private void clearSelectionActions() {
+        activateButton.setDisable(true);
+        deactivateButton.setDisable(true);
+    }
+
+    private void reselectSemester(int semesterId) {
+        semesterListView.getItems().stream()
+                .filter(semester -> semester.getId() == semesterId)
+                .findFirst()
+                .ifPresent(semester -> semesterListView.getSelectionModel().select(semester));
     }
 }

@@ -172,7 +172,7 @@ public class QuizBuilderController {
             return;
         }
         List<Semester> filtered = allSemesters.stream()
-                .filter(semester -> semester.getAcademicYearId() == selectedYear.getId())
+                .filter(semester -> semester.getAcademicYearId() == selectedYear.getId() && semester.isActive())
                 .toList();
         semesterComboBox.setItems(FXCollections.observableArrayList(filtered));
     }
