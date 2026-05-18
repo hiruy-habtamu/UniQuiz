@@ -167,6 +167,10 @@ public class QuizService {
         return quizDao.findByCreatedBy(teacherId);
     }
 
+    public boolean hasStudentTakenQuiz(int studentId, int quizId) throws SQLException {
+        return answerDao.hasAnyAnswerForStudentQuiz(studentId, quizId);
+    }
+
     public List<Quiz> getActiveQuizzesForSemester(int semesterId) throws SQLException {
         return quizDao.findBySemesterId(semesterId).stream()
                 .filter(quiz -> "ACTIVE".equalsIgnoreCase(quiz.getStatus()))

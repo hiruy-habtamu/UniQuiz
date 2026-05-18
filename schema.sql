@@ -134,6 +134,7 @@ CREATE TABLE answers (
     answered_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     violation_count INT     NOT NULL DEFAULT 0,
     force_submitted BOOLEAN NOT NULL DEFAULT FALSE,
+    UNIQUE KEY uq_answer_once_per_question (student_id, quiz_id, question_id),
     FOREIGN KEY (student_id)  REFERENCES users(id),
     FOREIGN KEY (quiz_id)     REFERENCES quizzes(id),
     FOREIGN KEY (question_id) REFERENCES questions(id),

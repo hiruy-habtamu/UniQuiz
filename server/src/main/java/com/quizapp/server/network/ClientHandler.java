@@ -310,6 +310,9 @@ public class ClientHandler implements Runnable {
         if (!"ACTIVE".equalsIgnoreCase(quiz.getStatus())) {
             return new JoinQuizResponseMessage(false, "Quiz is not active.", null, null);
         }
+        if (quizService.hasStudentTakenQuiz(message.getStudentId(), message.getQuizId())) {
+            return new JoinQuizResponseMessage(false, "You have already taken this quiz.", null, null);
+        }
 
         var section = enrollmentService.getPrimarySectionForStudent(message.getStudentId())
                 .orElseThrow(() -> new IllegalArgumentException("Student is not enrolled in a section."));

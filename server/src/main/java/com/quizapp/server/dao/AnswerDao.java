@@ -62,6 +62,19 @@ public class AnswerDao {
         return answers;
     }
 
+    public boolean hasAnyAnswerForStudentQuiz(int studentId, int quizId) throws SQLException {
+        String sql = "SELECT 1 FROM answers WHERE student_id = ? AND quiz_id = ? LIMIT 1";
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, studentId);
+            statement.setInt(2, quizId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
     public Optional<Answer> findByStudentQuizAndQuestion(int studentId, int quizId, int questionId) throws SQLException {
         String sql = BASE_SELECT + "WHERE student_id = ? AND quiz_id = ? AND question_id = ? LIMIT 1";
 
