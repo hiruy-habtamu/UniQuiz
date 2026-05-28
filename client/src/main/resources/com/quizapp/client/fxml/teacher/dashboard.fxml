@@ -1,21 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<VBox alignment="CENTER" spacing="12" xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.quizapp.client.controller.teacher.DashboardController">
+<BorderPane prefHeight="640.0" prefWidth="960.0" styleClass="workspace-background"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.quizapp.client.controller.teacher.DashboardController">
     <padding>
-        <Insets top="24" right="24" bottom="24" left="24"/>
+        <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
-    <Label text="Teacher Dashboard" />
-    <Label fx:id="welcomeLabel" />
-    <Button mnemonicParsing="false" onAction="#handleOpenAcademicYear" text="Manage academic years" />
-    <Button mnemonicParsing="false" onAction="#handleOpenBatch" text="Manage batches" />
-    <Button mnemonicParsing="false" onAction="#handleOpenSemester" text="Manage semesters" />
-    <Button mnemonicParsing="false" onAction="#handleOpenSection" text="Manage sections" />
-    <Button mnemonicParsing="false" onAction="#handleOpenQuizBuilder" text="Quiz builder" />
-    <Button mnemonicParsing="false" onAction="#handleOpenQuizSessions" text="Quiz sessions" />
-    <Button mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
-</VBox>
+    <left>
+        <VBox maxWidth="250" minWidth="250" prefWidth="250" spacing="10" styleClass="sidebar-card">
+            <padding>
+                <Insets top="24" right="18" bottom="24" left="18"/>
+            </padding>
+            <Label styleClass="sidebar-heading" text="UniQuiz" />
+            <Label fx:id="welcomeLabel" styleClass="subtitle-text" wrapText="true" />
+            <Region minHeight="24" />
+            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#handleOpenAcademicYear" styleClass="sidebar-button" text="Academic Years" />
+            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#handleOpenBatch" styleClass="sidebar-button" text="Batches" />
+            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#handleOpenSemester" styleClass="sidebar-button" text="Semesters" />
+            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#handleOpenSection" styleClass="sidebar-button" text="Sections" />
+            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#handleOpenQuizBuilder" styleClass="sidebar-button sidebar-primary" text="Create Quiz" />
+            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#handleOpenQuizSessions" styleClass="sidebar-button" text="Quiz Sessions" />
+            <Region VBox.vgrow="ALWAYS" />
+            <Region minHeight="8" styleClass="nav-divider" />
+            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#handleLogout" styleClass="danger-button" text="Logout" />
+        </VBox>
+    </left>
+    <center>
+        <StackPane BorderPane.alignment="CENTER">
+            <VBox maxWidth="Infinity" spacing="18" styleClass="dashboard-surface">
+                <padding>
+                    <Insets top="0" right="0" bottom="0" left="22"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" prefHeight="76" spacing="18" styleClass="top-bar-card">
+                    <padding>
+                        <Insets top="18" right="24" bottom="18" left="24"/>
+                    </padding>
+                    <VBox spacing="4">
+                        <Label styleClass="section-title" text="Teacher Workspace" />
+                        <Label styleClass="subtitle-text" text="Academic setup and live quiz management." />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <VBox alignment="CENTER_RIGHT" spacing="2">
+                        <Label styleClass="section-title" text="Instructor" />
+                        <Label styleClass="subtitle-text" text="Signed in and ready" />
+                    </VBox>
+                    <Circle fill="#dbeafe" radius="18" />
+                </HBox>
+                <HBox spacing="16">
+                    <VBox prefWidth="420" spacing="14" styleClass="hero-card">
+                        <padding>
+                            <Insets top="24" right="24" bottom="24" left="24"/>
+                        </padding>
+                        <Label styleClass="status-badge-active" text="WORKSPACE" />
+                        <Label styleClass="hero-title" text="Build and run quizzes with confidence." wrapText="true" />
+                        <Label styleClass="hero-text" text="Create academic structures, publish quizzes to active semesters, and manage classroom sessions from a single desktop workflow." wrapText="true" />
+                        <Button mnemonicParsing="false" onAction="#handleOpenQuizBuilder" styleClass="secondary-button" text="Launch Quiz Builder" />
+                    </VBox>
+                    <VBox prefWidth="220" spacing="8" styleClass="accent-card">
+                        <padding>
+                            <Insets top="20" right="20" bottom="20" left="20"/>
+                        </padding>
+                        <Label styleClass="muted-text" text="ACADEMIC SETUP" />
+                        <Label styleClass="section-title" text="Structured semester flow" wrapText="true" />
+                        <Label styleClass="subtitle-text" text="Activate semesters, create sections, and prepare student registration paths cleanly." wrapText="true" />
+                    </VBox>
+                </HBox>
+                <HBox spacing="16">
+                    <VBox spacing="10" styleClass="quick-card" HBox.hgrow="ALWAYS">
+                        <padding>
+                            <Insets top="20" right="20" bottom="20" left="20"/>
+                        </padding>
+                        <Label styleClass="section-title" text="Academic Years" />
+                        <Label styleClass="muted-text" text="Open and manage yearly structures before creating semesters." wrapText="true" />
+                        <Button mnemonicParsing="false" onAction="#handleOpenAcademicYear" styleClass="ghost-button" text="Open Academic Years" />
+                    </VBox>
+                    <VBox spacing="10" styleClass="quick-card" HBox.hgrow="ALWAYS">
+                        <padding>
+                            <Insets top="20" right="20" bottom="20" left="20"/>
+                        </padding>
+                        <Label styleClass="section-title" text="Sections" />
+                        <Label styleClass="muted-text" text="Set up batches, semesters, and sections that students can actually register into." wrapText="true" />
+                        <Button mnemonicParsing="false" onAction="#handleOpenSection" styleClass="ghost-button" text="Open Sections" />
+                    </VBox>
+                    <VBox spacing="10" styleClass="quick-card" HBox.hgrow="ALWAYS">
+                        <padding>
+                            <Insets top="20" right="20" bottom="20" left="20"/>
+                        </padding>
+                        <Label styleClass="section-title" text="Quiz Sessions" />
+                        <Label styleClass="muted-text" text="Start or close quizzes and control which classes can join based on active semesters." wrapText="true" />
+                        <Button mnemonicParsing="false" onAction="#handleOpenQuizSessions" styleClass="ghost-button" text="Open Sessions" />
+                    </VBox>
+                </HBox>
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>
