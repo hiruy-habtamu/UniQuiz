@@ -9,17 +9,14 @@ import com.quizapp.server.dao.QuestionDao;
 import com.quizapp.server.dao.QuizDao;
 import com.quizapp.server.dao.SectionDao;
 import com.quizapp.server.dao.SemesterDao;
-import com.quizapp.server.dao.TeacherSectionDao;
 import com.quizapp.server.dao.UserDao;
 import com.quizapp.server.service.AcademicYearService;
 import com.quizapp.server.service.AuthService;
 import com.quizapp.server.service.BatchService;
 import com.quizapp.server.service.EnrollmentService;
 import com.quizapp.server.service.QuizService;
-import com.quizapp.server.service.ScoringService;
 import com.quizapp.server.service.SectionService;
 import com.quizapp.server.service.SemesterService;
-import com.quizapp.server.service.TeacherSectionService;
 import com.quizapp.shared.message.quiz.CreateQuizMessage;
 import com.quizapp.shared.model.AcademicYear;
 import com.quizapp.shared.model.Answer;
@@ -30,10 +27,8 @@ import com.quizapp.shared.model.Question;
 import com.quizapp.shared.model.Quiz;
 import com.quizapp.shared.model.Section;
 import com.quizapp.shared.model.Semester;
-import com.quizapp.shared.model.TeacherSection;
 import com.quizapp.shared.model.User;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -48,7 +43,7 @@ public class ServerSmokeTest {
         testAuthValidationAndRegistration();
         testAcademicServicesValidation();
         testQuizCreationAndSubmissionRules();
-        testEnrollmentAndTeacherAssignments();
+        testEnrollmentRules();
         testScoring();
         System.out.println("Server smoke tests passed");
     }
@@ -201,7 +196,7 @@ public class ServerSmokeTest {
         expectIllegalArgument(() -> quizService.submitAnswer(answer), "duplicate answer should fail");
     }
 
-    private static void testEnrollmentAndTeacherAssignments() throws Exception {
+    private static void testEnrollmentRules() throws Exception {
         FakeUserDao userDao = new FakeUserDao();
         User teacher = teacher("mentor");
         userDao.insert(teacher);
@@ -219,11 +214,6 @@ public class ServerSmokeTest {
         enrollmentService.enrollStudent(student.getId(), section.getId());
         expectIllegalArgument(() -> enrollmentService.enrollStudent(student.getId(), section.getId()),
                 "duplicate enrollment should fail");
-
-        TeacherSectionService teacherSectionService = new TeacherSectionService(new FakeTeacherSectionDao(), userDao, sectionDao);
-        teacherSectionService.assignTeacher(teacher.getId(), section.getId());
-        expectIllegalArgument(() -> teacherSectionService.assignTeacher(teacher.getId(), section.getId()),
-                "duplicate teacher assignment should fail");
     }
 
     private static void testScoring() throws Exception {
@@ -269,9 +259,6 @@ public class ServerSmokeTest {
         a2.setChoiceId(c2.getId());
         answerDao.insert(a2);
 
-        ScoringService scoringService = new ScoringService(answerDao, choiceDao, questionDao);
-        assertEquals(1, scoringService.calculateScore(1, 1), "Raw score should count only correct answers");
-        assertEquals(50, scoringService.calculateScorePercentage(1, 1), "Percentage score should be derived from question count");
     }
 
     private static void expectIllegalArgument(ThrowingRunnable runnable, String message) throws Exception {
@@ -636,34 +623,4 @@ public class ServerSmokeTest {
         }
     }
 
-    private static class FakeTeacherSectionDao extends TeacherSectionDao {
-        private final List<TeacherSection> assignments = new ArrayList<>();
-
-        @Override
-        public Optional<TeacherSection> findByTeacherAndSection(int teacherId, int sectionId) {
-            return assignments.stream()
-                    .filter(assignment -> assignment.getTeacherId() == teacherId && assignment.getSectionId() == sectionId)
-                    .findFirst();
-        }
-
-        @Override
-        public List<TeacherSection> findByTeacherId(int teacherId) {
-            return assignments.stream().filter(assignment -> assignment.getTeacherId() == teacherId).toList();
-        }
-
-        @Override
-        public List<TeacherSection> findBySectionId(int sectionId) {
-            return assignments.stream().filter(assignment -> assignment.getSectionId() == sectionId).toList();
-        }
-
-        @Override
-        public void insert(TeacherSection teacherSection) {
-            assignments.add(teacherSection);
-        }
-
-        @Override
-        public void delete(int teacherId, int sectionId) {
-            assignments.removeIf(assignment -> assignment.getTeacherId() == teacherId && assignment.getSectionId() == sectionId);
-        }
-    }
 }

@@ -8,7 +8,6 @@ import com.quizapp.server.service.AuthService;
 import com.quizapp.server.service.QuizService;
 import com.quizapp.server.service.SectionService;
 import com.quizapp.server.service.SemesterService;
-import com.quizapp.server.service.TeacherSectionService;
 import com.quizapp.server.session.SessionRegistry;
 import com.quizapp.shared.config.AppEnv;
 
@@ -27,13 +26,12 @@ public class ServerBootstrap {
     private final SemesterService semesterService;
     private final SectionService sectionService;
     private final EnrollmentService enrollmentService;
-    private final TeacherSectionService teacherSectionService;
     private final OnlineRegistry onlineRegistry;
     private final SessionRegistry sessionRegistry;
 
     public ServerBootstrap() {
         this(AppEnv.getInt("SERVER_PORT", DEFAULT_PORT), new AuthService(), new QuizService(), new AcademicYearService(), new BatchService(), new SemesterService(),
-                new SectionService(), new EnrollmentService(), new TeacherSectionService(),
+                new SectionService(), new EnrollmentService(),
                 new OnlineRegistry(), new SessionRegistry());
     }
 
@@ -41,7 +39,7 @@ public class ServerBootstrap {
                            AcademicYearService academicYearService,
                            BatchService batchService, SemesterService semesterService,
                            SectionService sectionService, EnrollmentService enrollmentService,
-                           TeacherSectionService teacherSectionService, OnlineRegistry onlineRegistry,
+                           OnlineRegistry onlineRegistry,
                            SessionRegistry sessionRegistry) {
         this.port = port;
         this.authService = authService;
@@ -51,7 +49,6 @@ public class ServerBootstrap {
         this.semesterService = semesterService;
         this.sectionService = sectionService;
         this.enrollmentService = enrollmentService;
-        this.teacherSectionService = teacherSectionService;
         this.onlineRegistry = onlineRegistry;
         this.sessionRegistry = sessionRegistry;
     }
@@ -61,7 +58,7 @@ public class ServerBootstrap {
             while (true) {
                 Socket socket = serverSocket.accept();
                 ClientHandler handler = new ClientHandler(socket, authService, quizService, academicYearService, batchService,
-                        semesterService, sectionService, enrollmentService, teacherSectionService,
+                        semesterService, sectionService, enrollmentService,
                         onlineRegistry, sessionRegistry);
                 Thread thread = new Thread(handler, "client-" + socket.getPort());
                 thread.start();

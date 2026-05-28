@@ -8,13 +8,11 @@ import com.quizapp.server.service.AuthService;
 import com.quizapp.server.service.QuizService;
 import com.quizapp.server.service.SectionService;
 import com.quizapp.server.service.SemesterService;
-import com.quizapp.server.service.TeacherSectionService;
 import com.quizapp.server.session.QuizSession;
 import com.quizapp.server.session.SessionRegistry;
 import com.quizapp.shared.message.CommonResponseMessage;
 import com.quizapp.shared.message.Message;
 import com.quizapp.shared.message.academic.ActionResponseMessage;
-import com.quizapp.shared.message.academic.AssignTeacherSectionMessage;
 import com.quizapp.shared.message.academic.AssignStudentSectionMessage;
 import com.quizapp.shared.message.academic.CreateAcademicYearMessage;
 import com.quizapp.shared.message.academic.CreateBatchMessage;
@@ -70,7 +68,6 @@ public class ClientHandler implements Runnable {
     private final SemesterService semesterService;
     private final SectionService sectionService;
     private final EnrollmentService enrollmentService;
-    private final TeacherSectionService teacherSectionService;
     private final OnlineRegistry onlineRegistry;
     private final SessionRegistry sessionRegistry;
 
@@ -80,7 +77,7 @@ public class ClientHandler implements Runnable {
                          AcademicYearService academicYearService,
                          BatchService batchService, SemesterService semesterService,
                          SectionService sectionService, EnrollmentService enrollmentService,
-                         TeacherSectionService teacherSectionService, OnlineRegistry onlineRegistry,
+                         OnlineRegistry onlineRegistry,
                          SessionRegistry sessionRegistry) {
         this.socket = socket;
         this.authService = authService;
@@ -90,7 +87,6 @@ public class ClientHandler implements Runnable {
         this.semesterService = semesterService;
         this.sectionService = sectionService;
         this.enrollmentService = enrollmentService;
-        this.teacherSectionService = teacherSectionService;
         this.onlineRegistry = onlineRegistry;
         this.sessionRegistry = sessionRegistry;
     }
@@ -165,9 +161,6 @@ public class ClientHandler implements Runnable {
             }
             if (payload instanceof AssignStudentSectionMessage message) {
                 return handleAssignStudentSection(message);
-            }
-            if (payload instanceof AssignTeacherSectionMessage message) {
-                return handleAssignTeacher(message);
             }
             if (payload instanceof StartQuizMessage message) {
                 return handleStartQuiz(message);
@@ -269,11 +262,6 @@ public class ClientHandler implements Runnable {
 
     private ActionResponseMessage handleAssignStudentSection(AssignStudentSectionMessage message) throws SQLException {
         enrollmentService.enrollStudent(message.getStudentId(), message.getSectionId());
-        return new ActionResponseMessage(true, null);
-    }
-
-    private ActionResponseMessage handleAssignTeacher(AssignTeacherSectionMessage message) throws SQLException {
-        teacherSectionService.assignTeacher(message.getTeacherId(), message.getSectionId());
         return new ActionResponseMessage(true, null);
     }
 

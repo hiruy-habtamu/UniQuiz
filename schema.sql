@@ -13,9 +13,6 @@ CREATE TABLE academic_years (
     is_active  BOOLEAN     NOT NULL DEFAULT FALSE
 ) ENGINE=InnoDB;
 
--- ─────────────────────────────────────────────────────
--- Users — created without batch FK first (circular dep break)
--- ─────────────────────────────────────────────────────
 
 CREATE TABLE users (
     id            INT PRIMARY KEY AUTO_INCREMENT,
@@ -27,12 +24,6 @@ CREATE TABLE users (
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- ─────────────────────────────────────────────────────
--- Created by teacher from client
--- ─────────────────────────────────────────────────────
-
--- A batch = one cohort of students, e.g. "BSCS students who entered in 2022"
--- Differentiates 1st year BSCS from 3rd year BSCS in the same semester
 CREATE TABLE batches (
     id         INT PRIMARY KEY AUTO_INCREMENT,
     entry_year INT         NOT NULL,          -- 2022, 2023, 2024 etc
@@ -42,7 +33,6 @@ CREATE TABLE batches (
     FOREIGN KEY (created_by) REFERENCES users(id)
 ) ENGINE=InnoDB;
 
--- Deferred FK: users.batch_id → batches (could not be inline due to circular dependency)
 ALTER TABLE users
     ADD CONSTRAINT fk_users_batch
     FOREIGN KEY (batch_id) REFERENCES batches(id);
@@ -60,8 +50,6 @@ CREATE TABLE semesters (
     FOREIGN KEY (created_by)       REFERENCES users(id)
 ) ENGINE=InnoDB;
 
--- Section belongs to a batch within a semester
--- e.g. BSCS 2022 batch, Section A, First Sem 2025/26
 CREATE TABLE sections (
     id          INT PRIMARY KEY AUTO_INCREMENT,
     name        VARCHAR(10) NOT NULL,          -- "A", "B", "C"
@@ -88,9 +76,6 @@ CREATE TABLE teacher_sections (
     FOREIGN KEY (section_id) REFERENCES sections(id)
 ) ENGINE=InnoDB;
 
--- ─────────────────────────────────────────────────────
--- Quizzes — created by teacher from client
--- ─────────────────────────────────────────────────────
 
 CREATE TABLE quizzes (
     id              INT PRIMARY KEY AUTO_INCREMENT,
@@ -121,9 +106,6 @@ CREATE TABLE choices (
     FOREIGN KEY (question_id) REFERENCES questions(id)
 ) ENGINE=InnoDB;
 
--- ─────────────────────────────────────────────────────
--- Results — produced at runtime
--- ─────────────────────────────────────────────────────
 
 CREATE TABLE answers (
     id              INT PRIMARY KEY AUTO_INCREMENT,
